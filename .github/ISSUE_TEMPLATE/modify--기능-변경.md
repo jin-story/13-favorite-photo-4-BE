@@ -1,7 +1,7 @@
 ---
 name: 'modify: 기능 변경'
 about: 기능 변경 이슈 템플릿
-title: "[modify]"
+title: modify/
 labels: ''
 assignees: ''
 

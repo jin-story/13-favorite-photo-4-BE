@@ -1,7 +1,7 @@
 ---
 name: 'chore: 빌드 및 CI/CD'
 about: 프로젝트 관리 관련 이슈 템플릿
-title: "[chore]"
+title: chore/
 labels: ''
 assignees: ''
 

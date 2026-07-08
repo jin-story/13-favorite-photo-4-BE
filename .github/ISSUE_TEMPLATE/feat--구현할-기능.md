@@ -1,7 +1,7 @@
 ---
 name: 'feat: 구현할 기능'
 about: 새 기능 이슈 템플릿
-title: "[feat]"
+title: feat/
 labels: ''
 assignees: ''
 
