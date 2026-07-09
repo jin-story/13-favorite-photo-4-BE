@@ -1,2 +1,6 @@
+# 🌟 라벨이 없어도 무조건 이 포맷[이슈이름-이슈번호]으로 고정 생성하도록 지시!
 branchName: '${legacy.format}'
 format: '${issue.title}-${issue.number}'
+
+# 💡 이 한 줄을 추가해야 로봇이 헤매지 않고 무조건 실행해!
+defaultLabel: '*'
