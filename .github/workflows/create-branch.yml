@@ -13,19 +13,21 @@ jobs:
 
       - name: Create Issue Branch
         run: |
-          # 1. 이슈 제목을 소문자로 바꾸고 공백을 하이픈(-)으로 변경 (브랜치 안전 이름 생성)
+          # 1. 이슈 제목을 소문자로 바꾸고 공백을 하이픈(-)으로 변경
           TITLE=$(echo "${{ github.event.issue.title }}" | sed 's/[^a-zA-Z0-9-]/ /g' | awk '{print tolower($0)}' | tr ' ' '-')
           NUMBER="${{ github.event.issue.number }}"
-          BRANCH_NAME="${TITLE}-${NUMBER}"
-
-          echo "공식 로봇이 만들 브랜치 이름: $BRANCH_NAME"
-
-          # 2. dev 브랜치(또는 기본 브랜치) 기준으로 새 브랜치 생성 후 강제 푸시
+          
+          # 🌟 [이슈이름-issue-번호] 형태로 브랜치 이름 조립!
+          BRANCH_NAME="${TITLE}-issue-${NUMBER}"
+          
+          echo "생성할 브랜치 이름: $BRANCH_NAME"
+          
+          # 2. 깃허브 봇 계정으로 안전하게 브랜치 생성 후 push
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
+          
           git fetch origin
-          git checkout dev || git checkout main # dev 브랜치가 없으면 main 기준
-
+          git checkout dev || git checkout main # dev 브랜치 기준 (없으면 main)
+          
           git checkout -b "$BRANCH_NAME"
           git push origin "$BRANCH_NAME"
