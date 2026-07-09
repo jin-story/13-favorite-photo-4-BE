@@ -1,0 +1,2 @@
+branchName: '${legacy.format}'
+format: '${issue.title}-${issue.number}'

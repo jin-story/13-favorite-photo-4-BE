@@ -1,0 +1,14 @@
+name: Auto Create Branch from Issue
+
+on:
+  issues:
+    types: [opened] # 새로운 이슈가 생성(Opened)되었을 때 실행
+
+jobs:
+  create_branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create issue branch
+        uses: robvanderleek/create-issue-branch@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
