@@ -1,0 +1,7 @@
+# 코드래빗 가이드라인 설정
+language: "ko-KR" # 🌟 리뷰를 한국어로 작성하도록 강제
+
+reviews:
+  profile: "chill" # 리뷰 톤 앤 매너 설정 (assertive: 매운맛, chill: 부드러운 순한맛)
+  auto_review:
+    enabled: true # PR 올리면 자동으로 리뷰 시작
