@@ -1,17 +1,20 @@
 import express from "express";
-import dotenv from "dotenv";
 
-dotenv.config();
+import cors from "cors";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.json({ message: "Todo API Server" });
+  res.json({ message: "Favorite Photo API Server" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+export default app;
