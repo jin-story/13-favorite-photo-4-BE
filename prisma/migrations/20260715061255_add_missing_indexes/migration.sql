@@ -157,6 +157,12 @@ CREATE INDEX "photo_cards_grade_genre_idx" ON "photo_cards"("grade", "genre");
 CREATE UNIQUE INDEX "user_inventories_user_id_photo_card_id_key" ON "user_inventories"("user_id", "photo_card_id");
 
 -- CreateIndex
+CREATE INDEX "exchange_proposals_market_posting_id_idx" ON "exchange_proposals"("market_posting_id");
+
+-- CreateIndex
+CREATE INDEX "exchange_proposals_proposer_id_idx" ON "exchange_proposals"("proposer_id");
+
+-- CreateIndex
 CREATE INDEX "point_draws_user_id_created_at_idx" ON "point_draws"("user_id", "created_at");
 
 -- CreateIndex
