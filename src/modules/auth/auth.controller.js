@@ -13,7 +13,7 @@ async function signup(req, res, next) {
     const { email, nickname, encryptedPassword } = req.body;
     if (!email || !nickname || !encryptedPassword) {
       const error = new Error("모든 필드를 입력해주세요.");
-      error.code = 400;
+      error.status = 400;
       throw error;
     }
 
@@ -35,7 +35,7 @@ async function login(req, res, next) {
     const { email, encryptedPassword } = req.body;
     if (!email || !encryptedPassword) {
       const error = new Error("이메일 또는 비밀번호 입력을 확인해주세요.");
-      error.code = 400;
+      error.status = 400;
       throw error;
     }
 
