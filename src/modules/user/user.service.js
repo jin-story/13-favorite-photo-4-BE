@@ -10,7 +10,7 @@ async function verifyPassword(inputPassword, encryptedPassword) {
   const isMatch = await bcrypt.compare(inputPassword, encryptedPassword);
   if (!isMatch) {
     const error = new Error("비밀번호가 일치하지 않습니다.");
-    error.code = 401;
+    error.status = 401;
     throw error;
   }
 }
@@ -31,7 +31,7 @@ async function refreshToken(userId, refreshToken) {
   const user = await userRepository.findById(userId);
   if (!user || user.refreshToken !== refreshToken) {
     const error = new Error("접근 권한이 없습니다.");
-    error.code = 403;
+    error.status = 403;
     throw error;
   }
   const newAccessToken = createToken(user);
@@ -49,7 +49,7 @@ async function createUser(user) {
     const hasUser = await userRepository.findByEmail(user.email);
     if (hasUser) {
       const error = new Error("이미 존재하는 사용자입니다.");
-      error.code = 409;
+      error.status = 409;
       error.data = { email: user.email };
       throw error;
     }
@@ -60,9 +60,9 @@ async function createUser(user) {
     });
     return filterSensitiveUserData(createdUser);
   } catch (error) {
-    if (error.code === 409) throw error;
+    if (error.status === 409) throw error;
     const customError = new Error("서버 내부적 오류가 발생했습니다.");
-    customError.code = 500;
+    customError.status = 500;
     throw customError;
   }
 }
@@ -72,15 +72,15 @@ async function getUser(email, inputPassword) {
     const user = await userRepository.findByEmail(email);
     if (!user) {
       const error = new Error("존재하지 않는 이메일입니다.");
-      error.code = 401;
+      error.status = 401;
       throw error;
     }
     await verifyPassword(inputPassword, user.encryptedPassword);
     return filterSensitiveUserData(user);
   } catch (error) {
-    if (error.code === 401) throw error;
+    if (error.status === 401) throw error;
     const customError = new Error("서버 내부적 오류가 발생했습니다.");
-    customError.code = 500;
+    customError.status = 500;
     throw customError;
   }
 }
@@ -94,7 +94,7 @@ async function getMe(userId) {
   const user = await userRepository.findById(userId);
   if (!user) {
     const error = new Error("존재하지 않는 유저입니다");
-    error.code = 404;
+    error.status = 404;
     throw error;
   }
   return filterSensitiveUserData(user);
