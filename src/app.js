@@ -6,6 +6,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import passport from "./middlewares/auth.js";
 import router from "./routes/index.js";
 
 const app = express();
@@ -21,6 +22,7 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(passport.initialize());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
