@@ -18,7 +18,15 @@ async function login(email, encryptedPassword) {
 }
 
 async function refresh(refreshToken) {
-  const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  let payload;
+  try {
+    payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (error) {
+    const authError = new Error("유효하지 않은 토큰입니다.");
+    authError.status = 401;
+    throw authError;
+  }
+
   const { newAccessToken, newRefreshToken } = await userService.refreshToken(
     payload.userId,
     refreshToken,

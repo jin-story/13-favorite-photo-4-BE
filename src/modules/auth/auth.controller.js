@@ -1,10 +1,12 @@
 import authService from "./auth.service.js";
 import userService from "../user/user.service.js";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const REFRESH_TOKEN_COOKIE_OPTIONS = {
   httpOnly: true,
-  sameSite: "none",
-  secure: true,
+  sameSite: isProduction ? "none" : "lax",
+  secure: isProduction,
   path: "/auth/refresh-token",
 };
 
