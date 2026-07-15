@@ -1,6 +1,8 @@
 import { Router } from "express";
 import authController from "./auth.controller.js";
 import { protect } from "../../middlewares/auth.js";
+import { validate } from "../../middlewares/validate.js";
+import { userCreateSchema, loginSchema } from "./auth.schema.js";
 
 const authRouter = Router();
 
@@ -16,8 +18,8 @@ function verifyOrigin(req, res, next) {
 }
 
 authRouter.get("/me", protect, authController.getMe);
-authRouter.post("/signup", authController.signup);
-authRouter.post("/login", authController.login);
+authRouter.post("/signup", validate(userCreateSchema), authController.signup);
+authRouter.post("/login", validate(loginSchema), authController.login);
 authRouter.post("/refresh-token", verifyOrigin, authController.refreshToken);
 authRouter.post("/logout", protect, authController.logout);
 

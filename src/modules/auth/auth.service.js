@@ -5,7 +5,7 @@ async function signup(data) {
   const user = await userService.createUser(data);
   const accessToken = userService.createToken(user);
   const refreshToken = userService.createToken(user, "refreshToken");
-  await userService.updateUser(user.id, { refreshToken });
+  await userService.saveRefreshToken(user.id, refreshToken);
   return { user, accessToken, refreshToken };
 }
 
@@ -13,7 +13,7 @@ async function login(email, encryptedPassword) {
   const user = await userService.getUser(email, encryptedPassword);
   const accessToken = userService.createToken(user);
   const refreshToken = userService.createToken(user, "refreshToken");
-  await userService.updateUser(user.id, { refreshToken });
+  await userService.saveRefreshToken(user.id, refreshToken);
   return { user, accessToken, refreshToken };
 }
 
@@ -31,9 +31,7 @@ async function refresh(refreshToken) {
     payload.userId,
     refreshToken,
   );
-  await userService.updateUser(payload.userId, {
-    refreshToken: newRefreshToken,
-  });
+  await userService.saveRefreshToken(payload.userId, newRefreshToken);
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 }
 

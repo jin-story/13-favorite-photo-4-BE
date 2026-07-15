@@ -13,11 +13,6 @@ const REFRESH_TOKEN_COOKIE_OPTIONS = {
 async function signup(req, res, next) {
   try {
     const { email, nickname, encryptedPassword } = req.body;
-    if (!email || !nickname || !encryptedPassword) {
-      const error = new Error("모든 필드를 입력해주세요.");
-      error.status = 400;
-      throw error;
-    }
 
     const { user, accessToken, refreshToken } = await authService.signup({
       email,
@@ -35,11 +30,6 @@ async function signup(req, res, next) {
 async function login(req, res, next) {
   try {
     const { email, encryptedPassword } = req.body;
-    if (!email || !encryptedPassword) {
-      const error = new Error("이메일 또는 비밀번호 입력을 확인해주세요.");
-      error.status = 400;
-      throw error;
-    }
 
     const { user, accessToken, refreshToken } = await authService.login(
       email,
