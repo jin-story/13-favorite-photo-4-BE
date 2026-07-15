@@ -45,51 +45,37 @@ function filterSensitiveUserData(user) {
 }
 
 async function createUser(user) {
-  try {
-    const hasUser = await userRepository.findByEmail(user.email);
-    if (hasUser) {
-      const error = new Error("이미 존재하는 사용자입니다.");
-      error.status = 409;
-      error.data = { email: user.email };
-      throw error;
-    }
-    const hasNickname = await userRepository.findByNickname(user.nickname);
-    if (hasNickname) {
-      const error = new Error("이미 사용 중인 닉네임입니다.");
-      error.status = 409;
-      error.data = { nickname: user.nickname };
-      throw error;
-    }
-    const hashed = await hashedPassword(user.encryptedPassword);
-    const createdUser = await userRepository.save({
-      ...user,
-      encryptedPassword: hashed,
-    });
-    return filterSensitiveUserData(createdUser);
-  } catch (error) {
-    if (error.status === 409) throw error;
-    const customError = new Error("서버 내부적 오류가 발생했습니다.");
-    customError.status = 500;
-    throw customError;
+  const hasUser = await userRepository.findByEmail(user.email);
+  if (hasUser) {
+    const error = new Error("이미 존재하는 사용자입니다.");
+    error.status = 409;
+    error.data = { email: user.email };
+    throw error;
   }
+  const hasNickname = await userRepository.findByNickname(user.nickname);
+  if (hasNickname) {
+    const error = new Error("이미 사용 중인 닉네임입니다.");
+    error.status = 409;
+    error.data = { nickname: user.nickname };
+    throw error;
+  }
+  const hashed = await hashedPassword(user.encryptedPassword);
+  const createdUser = await userRepository.save({
+    ...user,
+    encryptedPassword: hashed,
+  });
+  return filterSensitiveUserData(createdUser);
 }
 
 async function getUser(email, inputPassword) {
-  try {
-    const user = await userRepository.findByEmail(email);
-    if (!user) {
-      const error = new Error("존재하지 않는 이메일입니다.");
-      error.status = 401;
-      throw error;
-    }
-    await verifyPassword(inputPassword, user.encryptedPassword);
-    return filterSensitiveUserData(user);
-  } catch (error) {
-    if (error.status === 401) throw error;
-    const customError = new Error("서버 내부적 오류가 발생했습니다.");
-    customError.status = 500;
-    throw customError;
+  const user = await userRepository.findByEmail(email);
+  if (!user) {
+    const error = new Error("존재하지 않는 이메일입니다.");
+    error.status = 401;
+    throw error;
   }
+  await verifyPassword(inputPassword, user.encryptedPassword);
+  return filterSensitiveUserData(user);
 }
 
 async function updateUser(id, data) {

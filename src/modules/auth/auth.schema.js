@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const userCreateSchema = z.object({
-  email: z.string().email("유효한 이메일 형식이 아닙니다."),
+  email: z.email("유효한 이메일 형식이 아닙니다."),
   nickname: z
     .string()
     .min(2, "닉네임은 2자 이상이어야 합니다.")
@@ -10,6 +10,6 @@ export const userCreateSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().email("유효한 이메일 형식이 아닙니다."),
+  email: z.email("유효한 이메일 형식이 아닙니다."),
   encryptedPassword: z.string(),
 });
