@@ -121,6 +121,8 @@ model ExchangeProposal {
 
   notifications Notification[]
 
+  @@index([marketPostingId])
+  @@index([proposerId])
   @@map("exchange_proposals")
 }
 
