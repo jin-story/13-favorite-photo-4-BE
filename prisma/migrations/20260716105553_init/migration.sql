@@ -5,7 +5,7 @@ CREATE TYPE "AuthProvider" AS ENUM ('LOCAL', 'GOOGLE');
 CREATE TYPE "Grade" AS ENUM ('COMMON', 'RARE', 'SUPER_RARE', 'LEGENDARY');
 
 -- CreateEnum
-CREATE TYPE "Genre" AS ENUM ('TRAVEL', 'LANDSCAPE', 'PORTRAIT', 'OBJECT');
+CREATE TYPE "Genre" AS ENUM ('ALBUM', 'SPECIAL', 'FAN_SIGN', 'SEASON_GREETING', 'FAN_MEETING', 'CONCERT', 'MD', 'COLLABORATION', 'FAN_CLUB', 'ETC');
 
 -- CreateEnum
 CREATE TYPE "ExchangeProposalStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'CANCELED');
@@ -97,6 +97,9 @@ CREATE TABLE "market_postings" (
     "quantity" INTEGER NOT NULL,
     "title" TEXT,
     "description" TEXT,
+    "exchange_grade" "Grade",
+    "exchange_genre" "Genre",
+    "exchange_description" TEXT,
     "status" "MarketPostingStatus" NOT NULL DEFAULT 'ON_SALE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
