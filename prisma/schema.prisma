@@ -25,10 +25,16 @@ enum Grade {
 }
 
 enum Genre {
-  TRAVEL
-  LANDSCAPE
-  PORTRAIT
-  OBJECT
+  ALBUM // 앨범
+  SPECIAL // 특전
+  FAN_SIGN // 팬싸
+  SEASON_GREETING // 시즌그리팅
+  FAN_MEETING // 팬미팅
+  CONCERT // 콘서트
+  MD // MD
+  COLLABORATION // 콜라보
+  FAN_CLUB // 팬클럽
+  ETC // 기타
 }
 
 model User {
@@ -150,17 +156,20 @@ enum PurchaseStatus {
 }
 
 model MarketPosting {
-  id              Int                 @id @default(autoincrement())
-  sellerId        Int                 @map("seller_id")
-  userInventoryId Int                 @map("user_inventory_id")
-  price           Int
-  quantity        Int
-  title           String?
-  description     String?
-  status          MarketPostingStatus @default(ON_SALE)
-  createdAt       DateTime            @default(now()) @map("created_at")
-  updatedAt       DateTime            @updatedAt @map("updated_at")
-  deletedAt       DateTime?           @map("deleted_at")
+  id                  Int                 @id @default(autoincrement())
+  sellerId            Int                 @map("seller_id")
+  userInventoryId     Int                 @map("user_inventory_id")
+  price               Int
+  quantity            Int
+  title               String?
+  description         String?
+  exchangeGrade       Grade?              @map("exchange_grade")
+  exchangeGenre       Genre?              @map("exchange_genre")
+  exchangeDescription String?             @map("exchange_description")
+  status              MarketPostingStatus @default(ON_SALE)
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+  deletedAt           DateTime?           @map("deleted_at")
 
   seller            User               @relation(fields: [sellerId], references: [id])
   userInventory     UserInventory      @relation(fields: [userInventoryId], references: [id])
