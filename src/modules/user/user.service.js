@@ -30,7 +30,8 @@ function createToken(user, type) {
 async function refreshToken(userId, refreshToken) {
   const user = await userRepository.findById(userId);
   const isValid =
-    user?.refreshToken && (await bcrypt.compare(refreshToken, user.refreshToken));
+    user?.refreshToken &&
+    (await bcrypt.compare(refreshToken, user.refreshToken));
   if (!isValid) {
     const error = new Error("접근 권한이 없습니다.");
     error.status = 403;
@@ -100,6 +101,10 @@ async function getMe(userId) {
   return filterSensitiveUserData(user);
 }
 
+async function getMyInventories(userId) {
+  return userRepository.findInventoriesByUserId(userId);
+}
+
 export default {
   createToken,
   refreshToken,
@@ -108,4 +113,5 @@ export default {
   getUser,
   createUser,
   getMe,
+  getMyInventories,
 };

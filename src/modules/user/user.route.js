@@ -6,4 +6,6 @@ const userRouter = Router();
 
 userRouter.get("/me", protect, userController.getMe);
 
+userRouter.get("/me/inventories", protect, userController.getMyInventories);
+
 export default userRouter;

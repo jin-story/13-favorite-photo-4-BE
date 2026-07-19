@@ -43,10 +43,18 @@ async function update(id, data) {
   });
 }
 
+async function findInventoriesByUserId(userId) {
+  return prisma.userInventory.findMany({
+    where: { userId, ownedQuantity: { gt: 0 } },
+    include: { photoCard: true },
+  });
+}
+
 export default {
   findById,
   findByEmail,
   findByNickname,
   save,
   update,
+  findInventoriesByUserId,
 };
