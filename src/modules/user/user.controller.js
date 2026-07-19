@@ -16,7 +16,15 @@ async function getMyInventories(req, res) {
   return res.status(200).json(inventories);
 }
 
+async function getMyExchangeProposals(req, res) {
+  const exchangeProposals = await userService.getMyExchangeProposals(
+    req.user.userId,
+  );
+  return res.status(200).json(exchangeProposals);
+}
+
 export default {
   getMe,
   getMyInventories,
+  getMyExchangeProposals,
 };

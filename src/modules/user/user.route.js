@@ -8,4 +8,9 @@ userRouter.get("/me", protect, userController.getMe);
 
 userRouter.get("/me/inventories", protect, userController.getMyInventories);
 
+userRouter.get(
+  "/me/exchange-proposals",
+  protect,
+  userController.getMyExchangeProposals,
+);
 export default userRouter;

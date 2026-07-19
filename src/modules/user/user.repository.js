@@ -45,8 +45,68 @@ async function update(id, data) {
 
 async function findInventoriesByUserId(userId) {
   return prisma.userInventory.findMany({
-    where: { userId, ownedQuantity: { gt: 0 } },
-    include: { photoCard: true },
+    where: {
+      userId,
+      ownedQuantity: {
+        gt: 0,
+      },
+    },
+    select: {
+      id: true,
+      photoCardId: true,
+      ownedQuantity: true,
+      photoCard: {
+        select: {
+          id: true,
+          name: true,
+          grade: true,
+          genre: true,
+          minPrice: true,
+          imageUrl: true,
+          creator: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+async function findExchangeProposalsByProposerId(userId) {
+  return prisma.exchangeProposal.findMany({
+    where: {
+      proposerId: userId,
+    },
+    select: {
+      id: true,
+      message: true,
+      status: true,
+      createdAt: true,
+      offeredInventory: {
+        select: {
+          photoCard: {
+            select: {
+              id: true,
+              name: true,
+              grade: true,
+              genre: true,
+              minPrice: true,
+              imageUrl: true,
+              creator: {
+                select: {
+                  nickname: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 }
 
@@ -57,4 +117,5 @@ export default {
   save,
   update,
   findInventoriesByUserId,
+  findExchangeProposalsByProposerId,
 };
