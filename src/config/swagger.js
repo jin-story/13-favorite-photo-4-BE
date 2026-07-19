@@ -12,6 +12,15 @@ const swaggerOptions = {
         url: `http://localhost:${process.env.PORT || 3001}`,
       },
     ],
+    components: {
+      securitySchemes: {
+        refreshTokenCookie: {
+          type: "apiKey",
+          in: "cookie",
+          name: "refreshToken",
+        },
+      },
+    },
   },
   apis: ["./src/modules/**/*.route.js"],
 };
