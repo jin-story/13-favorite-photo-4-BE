@@ -161,6 +161,7 @@ model MarketPosting {
   userInventoryId     Int                 @map("user_inventory_id")
   price               Int
   quantity            Int
+  remainingQuantity   Int                 @map("remaining_quantity")
   title               String?
   description         String?
   exchangeGrade       Grade?              @map("exchange_grade")
