@@ -95,6 +95,7 @@ CREATE TABLE "market_postings" (
     "user_inventory_id" INTEGER NOT NULL,
     "price" INTEGER NOT NULL,
     "quantity" INTEGER NOT NULL,
+    "remaining_quantity" INTEGER NOT NULL,
     "title" TEXT,
     "description" TEXT,
     "exchange_grade" "Grade",
