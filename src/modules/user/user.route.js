@@ -108,6 +108,29 @@ userRouter.get("/me", protect, userController.getMe);
  *         schema:
  *           type: string
  *           enum: [ALBUM, SPECIAL, FAN_SIGN, SEASON_GREETING, FAN_MEETING, CONCERT, MD, COLLABORATION, FAN_CLUB, ETC]
+ *     responses:
+ *       '200':
+ *         description: 내 보유 카드 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 required: [id, photoCardId, ownedQuantity, photoCard]
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   photoCardId:
+ *                     type: integer
+ *                   ownedQuantity:
+ *                     type: integer
+ *                   photoCard:
+ *                     $ref: '#/components/schemas/UserPhotoCard'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequest'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
  */
 userRouter.get("/me/inventories", protect, userController.getMyInventories);
 
