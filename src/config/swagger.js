@@ -7,6 +7,15 @@ const swaggerOptions = {
       title: "최애의 포토 API",
       version: "1.0.0",
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
     servers: [
       {
         url: `http://localhost:${process.env.PORT || 3001}`,
