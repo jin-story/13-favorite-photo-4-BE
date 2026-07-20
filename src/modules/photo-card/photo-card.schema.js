@@ -46,6 +46,11 @@ export const listPhotoCardsQuerySchema = z.object({
   sort: z.enum(["recent", "oldest", "price_asc", "price_desc"]).default("recent"),
 });
 
-export const listMyPhotoCardsQuerySchema = listPhotoCardsQuerySchema.omit({
-  soldOut: true,
-}).strict();
+export const listMyPhotoCardsQuerySchema = z.object({
+  page: positiveInt.default(1),
+  limit: positiveInt.max(100).default(10),
+  keyword: z.string().trim().optional(),
+  grade: gradeSchema.optional(),
+  genre: genreSchema.optional(),
+  sort: z.enum(["recent", "oldest", "price_asc", "price_desc"]).default("recent"),
+});
