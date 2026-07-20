@@ -45,3 +45,7 @@ export const listPhotoCardsQuerySchema = z.object({
     .optional(),
   sort: z.enum(["recent", "oldest", "price_asc", "price_desc"]).default("recent"),
 });
+
+export const listMyPhotoCardsQuerySchema = listPhotoCardsQuerySchema.omit({
+  soldOut: true,
+}).strict();

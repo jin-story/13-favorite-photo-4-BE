@@ -7,6 +7,7 @@ import {
   createPhotoCardBodySchema,
   photoCardIdParamsSchema,
   listPhotoCardsQuerySchema,
+  listMyPhotoCardsQuerySchema,
 } from "./photo-card.schema.js";
 import { validateRequest } from "./photo-card.validate.js";
 
@@ -300,11 +301,6 @@ router.get(
  *             - FAN_CLUB
  *             - ETC
  *       - in: query
- *         name: soldOut
- *         schema:
- *           type: string
- *           enum: ["true", "false"]
- *       - in: query
  *         name: sort
  *         schema:
  *           type: string
@@ -323,7 +319,7 @@ router.get(
 router.get(
   "/me",
   protect,
-  validateRequest({ query: listPhotoCardsQuerySchema }),
+  validateRequest({ query: listMyPhotoCardsQuerySchema }),
   photoCardController.listMyPhotoCards,
 );
 
