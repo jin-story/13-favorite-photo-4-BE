@@ -112,9 +112,12 @@ const router = Router();
  *           example: 1000
  *         title:
  *           type: string
+ *           minLength: 1
+ *           maxLength: 100
  *           example: "Winter Special Card 판매"
  *         description:
  *           type: string
+ *           maxLength: 1000
  *           example: "상태 좋은 포토카드입니다."
  *         exchangeGrade:
  *           type: string
@@ -134,6 +137,7 @@ const router = Router();
  *             - ETC
  *         exchangeDescription:
  *           type: string
+ *           maxLength: 1000
  *           example: "RARE 이상 카드와 교환 희망"
  *     MarketPostingUpdateRequest:
  *       type: object
@@ -148,9 +152,12 @@ const router = Router();
  *           example: 1200
  *         title:
  *           type: string
+ *           minLength: 1
+ *           maxLength: 100
  *           example: "Winter Special Card 판매"
  *         description:
  *           type: string
+ *           maxLength: 1000
  *           example: "가격을 조정했습니다."
  *         exchangeGrade:
  *           type: string
@@ -170,6 +177,7 @@ const router = Router();
  *             - ETC
  *         exchangeDescription:
  *           type: string
+ *           maxLength: 1000
  *           example: "SUPER_RARE 카드와 교환 희망"
  *     MarketPostingListResponse:
  *       type: object
@@ -284,12 +292,18 @@ router.get(
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/MarketPosting"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
  *       401:
- *         description: 인증 실패
+ *         $ref: "#/components/responses/Unauthorized"
  *       404:
  *         description: 판매 가능한 보유 포토카드를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       409:
- *         description: 판매 등록 가능한 보유 수량 부족
+ *         $ref: "#/components/responses/Conflict"
  */
 router.post(
   "/",

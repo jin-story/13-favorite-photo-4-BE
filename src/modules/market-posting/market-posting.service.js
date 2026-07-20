@@ -1,4 +1,5 @@
 import * as marketPostingRepository from "./market-posting.repository.js";
+import { createHttpError } from "./market-posting.error.js";
 
 function toPhotoCardResponse(photoCard) {
   if (!photoCard) return undefined;
@@ -87,10 +88,7 @@ async function getExistingMarketPosting(marketPostingId) {
   const posting = await marketPostingRepository.findMarketPostingById(marketPostingId);
 
   if (!posting) {
-    const error = new Error("판매글을 찾을 수 없습니다.");
-    error.status = 404;
-    error.code = "MARKET_POSTING_NOT_FOUND";
-    throw error;
+    throw createHttpError("판매글을 찾을 수 없습니다.", 404, "MARKET_POSTING_NOT_FOUND");
   }
 
   return posting;
