@@ -1371,8 +1371,7 @@ async function main() {
     userId: card.userId,
     photoCardId: card.id,
 
-    // 원본 카드 1건을 판매글 1건으로 해석합니다.
-    // 전량을 판매 등록한 상태이므로 판매글 밖의 보유 수량은 0입니다.
+    // 추후 작업하실 떄 seed ownedQuantity 손봐야 하면 수정해주세요!ㅎ
     ownedQuantity: 0,
   }));
 

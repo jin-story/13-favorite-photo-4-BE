@@ -135,4 +135,56 @@ userRouter.get(
   protect,
   userController.getMyExchangeProposals,
 );
+
+/**
+ * @swagger
+ * /users/me/market-postings:
+ *   get:
+ *     tags: [User]
+ *     summary: 나의 판매 포토카드 목록 조회
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: 생성일과 ID 내림차순으로 정렬된 나의 판매 포토카드 목록
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 required: [id, price, quantity, remainingQuantity, status, createdAt, userInventory]
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   price:
+ *                     type: integer
+ *                   quantity:
+ *                     type: integer
+ *                   remainingQuantity:
+ *                     type: integer
+ *                   status:
+ *                     type: string
+ *                     enum: [ON_SALE, SOLD]
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   userInventory:
+ *                     type: object
+ *                     required: [id, ownedQuantity, photoCard]
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       ownedQuantity:
+ *                         type: integer
+ *                       photoCard:
+ *                         $ref: '#/components/schemas/UserPhotoCard'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+userRouter.get(
+  "/me/market-postings",
+  protect,
+  userController.getMyMarketPostings,
+);
 export default userRouter;

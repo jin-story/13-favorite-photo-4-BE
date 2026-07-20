@@ -110,6 +110,52 @@ async function findExchangeProposalsByProposerId(userId) {
   });
 }
 
+async function findMarketPostingsBySellerId(userId) {
+  return prisma.marketPosting.findMany({
+    where: {
+      sellerId: userId,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      price: true,
+      quantity: true,
+      remainingQuantity: true,
+      status: true,
+      createdAt: true,
+      userInventory: {
+        select: {
+          id: true,
+          ownedQuantity: true,
+          photoCard: {
+            select: {
+              id: true,
+              name: true,
+              grade: true,
+              genre: true,
+              minPrice: true,
+              imageUrl: true,
+              creator: {
+                select: {
+                  nickname: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+      {
+        id: "desc",
+      },
+    ],
+  });
+}
+
 export default {
   findById,
   findByEmail,
@@ -118,4 +164,5 @@ export default {
   update,
   findInventoriesByUserId,
   findExchangeProposalsByProposerId,
+  findMarketPostingsBySellerId,
 };

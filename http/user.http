@@ -5,12 +5,14 @@
 GET {{baseUrl}}/users/me
 Authorization: Bearer {{accessToken}}
 
-
 ### 내 보유 카드 목록 조회
 GET {{baseUrl}}/users/me/inventories
 Authorization: Bearer {{accessToken}}
 
-
 ### 내가 제시한 교환 목록 조회
 GET {{baseUrl}}/users/me/exchange-proposals
+Authorization: Bearer {{accessToken}}
+
+### 나의 판매 포토카드 목록 조회
+GET {{baseUrl}}/users/me/market-postings
 Authorization: Bearer {{accessToken}}

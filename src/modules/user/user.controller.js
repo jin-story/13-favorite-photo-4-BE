@@ -23,8 +23,15 @@ async function getMyExchangeProposals(req, res) {
   return res.status(200).json(exchangeProposals);
 }
 
+async function getMyMarketPostings(req, res) {
+  const marketPostings = await userService.getMyMarketPostings(req.user.userId);
+
+  return res.status(200).json(marketPostings);
+}
+
 export default {
   getMe,
   getMyInventories,
   getMyExchangeProposals,
+  getMyMarketPostings,
 };
