@@ -14,15 +14,6 @@ const swaggerOptions = {
           scheme: "bearer",
           bearerFormat: "JWT",
         },
-      },
-    },
-    servers: [
-      {
-        url: `http://localhost:${process.env.PORT || 3001}`,
-      },
-    ],
-    components: {
-      securitySchemes: {
         refreshTokenCookie: {
           type: "apiKey",
           in: "cookie",
@@ -30,6 +21,11 @@ const swaggerOptions = {
         },
       },
     },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 3001}`,
+      },
+    ],
   },
   apis: ["./src/modules/**/*.route.js"],
 };
