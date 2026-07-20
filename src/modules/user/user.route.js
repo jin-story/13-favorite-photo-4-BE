@@ -32,6 +32,25 @@ const userRouter = Router();
  *           properties:
  *             nickname:
  *               type: string
+ *     Notification:
+ *       type: object
+ *       required: [id, type, message, isRead, readAt, createdAt]
+ *       properties:
+ *         id:
+ *           type: integer
+ *         type:
+ *           type: string
+ *           enum: [TRANSACTION_COMPLETED, MARKET_POSTING_SOLD, MARKET_POSTING_SOLD_OUT, EXCHANGE_PROPOSAL_RECEIVED, EXCHANGE_PROPOSAL_APPROVED, EXCHANGE_PROPOSAL_REJECTED]
+ *         message:
+ *           type: string
+ *         isRead:
+ *           type: boolean
+ *         readAt:
+ *           type: [string, "null"]
+ *           format: date-time
+ *         createdAt:
+ *           type: string
+ *           format: date-time
  */
 
 /**
@@ -188,6 +207,77 @@ userRouter.get(
   userController.getMyMarketPostings,
 );
 
+/**
+ * @swagger
+ * /users/me/notifications:
+ *   get:
+ *     tags: [User]
+ *     summary: 내 알림 목록 조회
+ *     description: createdAt 내림차순으로 정렬하며, createdAt이 같으면 id 내림차순으로 정렬합니다.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: 알림 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Notification'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ */
 userRouter.get("/me/notifications", protect, userController.getMyNotifications);
+
+/**
+ * @swagger
+ * /users/me/notifications/{notificationId}:
+ *   patch:
+ *     tags: [User]
+ *     summary: 내 알림 읽음 처리
+ *     description: 읽지 않은 알림은 isRead를 true로 변경하고 readAt을 기록합니다. 이미 읽은 알림은 기존 readAt을 유지하며, 본인 소유 알림만 수정할 수 있습니다.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: notificationId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *     responses:
+ *       '200':
+ *         description: 알림 읽음 처리 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Notification'
+ *       '400':
+ *         description: notificationId가 올바르지 않습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ *       '403':
+ *         description: 다른 사용자의 알림은 수정할 수 없습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '404':
+ *         description: 알림을 찾을 수 없습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+userRouter.patch(
+  "/me/notifications/:notificationId",
+  protect,
+  userController.markNotificationAsRead,
+);
 
 export default userRouter;

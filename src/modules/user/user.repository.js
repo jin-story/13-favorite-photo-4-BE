@@ -180,6 +180,43 @@ async function findNotificationsByUserId(userId) {
   });
 }
 
+async function findNotificationById(notificationId) {
+  return prisma.notification.findUnique({
+    where: {
+      id: notificationId,
+    },
+    select: {
+      id: true,
+      userId: true,
+      type: true,
+      message: true,
+      isRead: true,
+      readAt: true,
+      createdAt: true,
+    },
+  });
+}
+
+async function updateNotificationAsRead(notificationId) {
+  return prisma.notification.update({
+    where: {
+      id: notificationId,
+    },
+    data: {
+      isRead: true,
+      readAt: new Date(),
+    },
+    select: {
+      id: true,
+      type: true,
+      message: true,
+      isRead: true,
+      readAt: true,
+      createdAt: true,
+    },
+  });
+}
+
 export default {
   findById,
   findByEmail,
@@ -190,4 +227,6 @@ export default {
   findExchangeProposalsByProposerId,
   findMarketPostingsBySellerId,
   findNotificationsByUserId,
+  findNotificationById,
+  updateNotificationAsRead,
 };

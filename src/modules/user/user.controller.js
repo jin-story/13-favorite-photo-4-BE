@@ -1,4 +1,5 @@
 import userService from "./user.service.js";
+import { markNotificationAsReadParamsSchema } from "./user.schema.js";
 
 async function getMe(req, res, next) {
   try {
@@ -35,10 +36,24 @@ async function getMyNotifications(req, res) {
   return res.status(200).json(notifications);
 }
 
+async function markNotificationAsRead(req, res) {
+  const { notificationId } = markNotificationAsReadParamsSchema.parse(
+    req.params,
+  );
+
+  const notification = await userService.markNotificationAsRead(
+    req.user.userId,
+    notificationId,
+  );
+
+  return res.status(200).json(notification);
+}
+
 export default {
   getMe,
   getMyInventories,
   getMyExchangeProposals,
   getMyMarketPostings,
   getMyNotifications,
+  markNotificationAsRead,
 };

@@ -117,6 +117,37 @@ async function getMyNotifications(userId) {
   return userRepository.findNotificationsByUserId(userId);
 }
 
+function toNotificationResponse(notification) {
+  const { userId, ...notificationResponse } = notification;
+
+  return notificationResponse;
+}
+
+async function markNotificationAsRead(userId, notificationId) {
+  const notification =
+    await userRepository.findNotificationById(notificationId);
+
+  if (!notification) {
+    const error = new Error("알림을 찾을 수 없습니다.");
+    error.status = 404;
+    error.code = "NOTIFICATION_NOT_FOUND";
+    throw error;
+  }
+
+  if (notification.userId !== userId) {
+    const error = new Error("해당 알림을 수정할 권한이 없습니다.");
+    error.status = 403;
+    error.code = "FORBIDDEN";
+    throw error;
+  }
+
+  if (notification.isRead) {
+    return toNotificationResponse(notification);
+  }
+
+  return userRepository.updateNotificationAsRead(notificationId);
+}
+
 export default {
   createToken,
   refreshToken,
@@ -129,4 +160,5 @@ export default {
   getMyExchangeProposals,
   getMyMarketPostings,
   getMyNotifications,
+  markNotificationAsRead,
 };

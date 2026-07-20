@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:3001
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4NDUzMDk0OSwiZXhwIjoxNzg0NTM0NTQ5fQ.Ljixh03Jygo18sMO79Wyc4vARiKySwQ3APzYX1ogSak
+@accessToken = 여기에 user access token
 
 ### 회원가입
 POST {{baseUrl}}/auth/signup
@@ -41,4 +41,14 @@ Content-Type: application/json
 {
   "email": "user1@example.com",
   "encryptedPassword": "password1"
+}
+
+
+### 로그인 seed user2
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user2@example.com",
+  "encryptedPassword": "password2"
 }
