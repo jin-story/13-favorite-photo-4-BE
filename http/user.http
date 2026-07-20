@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:3001
-@accessToken = 로그인_응답의_accessToken을_여기에_붙여넣기
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4NDUzMDk0OSwiZXhwIjoxNzg0NTM0NTQ5fQ.Ljixh03Jygo18sMO79Wyc4vARiKySwQ3APzYX1ogSak
 
 ### 내 정보 조회
 GET {{baseUrl}}/users/me
@@ -16,3 +16,11 @@ Authorization: Bearer {{accessToken}}
 ### 나의 판매 포토카드 목록 조회
 GET {{baseUrl}}/users/me/market-postings
 Authorization: Bearer {{accessToken}}
+
+
+### 알림 목록 조회
+GET {{baseUrl}}/users/me/notifications
+Authorization: Bearer {{accessToken}}
+
+### 알림 목록 조회 - 토큰 제거 ver
+GET {{baseUrl}}/users/me/notifications

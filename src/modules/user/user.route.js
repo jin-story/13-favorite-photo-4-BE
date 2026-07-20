@@ -187,4 +187,7 @@ userRouter.get(
   protect,
   userController.getMyMarketPostings,
 );
+
+userRouter.get("/me/notifications", protect, userController.getMyNotifications);
+
 export default userRouter;

@@ -29,9 +29,16 @@ async function getMyMarketPostings(req, res) {
   return res.status(200).json(marketPostings);
 }
 
+async function getMyNotifications(req, res) {
+  const notifications = await userService.getMyNotifications(req.user.userId);
+
+  return res.status(200).json(notifications);
+}
+
 export default {
   getMe,
   getMyInventories,
   getMyExchangeProposals,
   getMyMarketPostings,
+  getMyNotifications,
 };

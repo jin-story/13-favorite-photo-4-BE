@@ -113,6 +113,10 @@ async function getMyMarketPostings(userId) {
   return userRepository.findMarketPostingsBySellerId(userId);
 }
 
+async function getMyNotifications(userId) {
+  return userRepository.findNotificationsByUserId(userId);
+}
+
 export default {
   createToken,
   refreshToken,
@@ -124,4 +128,5 @@ export default {
   getMyInventories,
   getMyExchangeProposals,
   getMyMarketPostings,
+  getMyNotifications,
 };

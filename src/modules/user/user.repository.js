@@ -156,6 +156,30 @@ async function findMarketPostingsBySellerId(userId) {
   });
 }
 
+async function findNotificationsByUserId(userId) {
+  return prisma.notification.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      id: true,
+      type: true,
+      message: true,
+      isRead: true,
+      readAt: true,
+      createdAt: true,
+    },
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+      {
+        id: "desc",
+      },
+    ],
+  });
+}
+
 export default {
   findById,
   findByEmail,
@@ -165,4 +189,5 @@ export default {
   findInventoriesByUserId,
   findExchangeProposalsByProposerId,
   findMarketPostingsBySellerId,
+  findNotificationsByUserId,
 };
