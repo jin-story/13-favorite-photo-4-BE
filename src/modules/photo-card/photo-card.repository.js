@@ -31,31 +31,6 @@ export async function createPhotoCard({ creatorId, data }) {
   });
 }
 
-export async function listPhotoCards({ where, orderBy, skip, take }) {
-  const [list, total] = await Promise.all([
-    prisma.photoCard.findMany({
-      where,
-      orderBy,
-      skip,
-      take,
-      include: photoCardInclude,
-    }),
-    prisma.photoCard.count({ where }),
-  ]);
-
-  return {
-    list,
-    total,
-  };
-}
-
-export async function findPhotoCardById(id) {
-  return prisma.photoCard.findUnique({
-    where: { id },
-    include: photoCardInclude,
-  });
-}
-
 export async function listMyPhotoCards({ userId, where, skip, take }) {
   const inventoryWhere = {
     userId,

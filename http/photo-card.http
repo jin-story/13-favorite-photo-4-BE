@@ -1,0 +1,21 @@
+@baseUrl = http://localhost:3001
+@accessToken = 여기에 user access token
+
+### 포토카드 생성
+POST {{baseUrl}}/photo-cards
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Winter Special Card",
+  "grade": "RARE",
+  "genre": "SPECIAL",
+  "minPrice": 1000,
+  "description": "Winter special photocard",
+  "imageUrl": "https://example.com/photo-card.png",
+  "totalQuantity": 10
+}
+
+### 마이갤러리 내 보유 카드 목록 조회
+GET {{baseUrl}}/photo-cards/me?page=1&limit=10&sort=recent
+Authorization: Bearer {{accessToken}}

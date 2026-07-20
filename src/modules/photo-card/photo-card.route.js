@@ -5,8 +5,6 @@ import { validate, validateRequest } from "../../middlewares/validate.js";
 import * as photoCardController from "./photo-card.controller.js";
 import {
   createPhotoCardBodySchema,
-  photoCardIdParamsSchema,
-  listPhotoCardsQuerySchema,
   listMyPhotoCardsQuerySchema,
 } from "./photo-card.schema.js";
 
@@ -184,76 +182,6 @@ router.post(
 
 /**
  * @swagger
- * /photo-cards:
- *   get:
- *     summary: 포토카드 목록 조회
- *     tags:
- *       - PhotoCards
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           minimum: 1
- *           default: 1
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 100
- *           default: 10
- *       - in: query
- *         name: keyword
- *         schema:
- *           type: string
- *       - in: query
- *         name: grade
- *         schema:
- *           type: string
- *           enum: [COMMON, RARE, SUPER_RARE, LEGENDARY]
- *       - in: query
- *         name: genre
- *         schema:
- *           type: string
- *           enum:
- *             - ALBUM
- *             - SPECIAL
- *             - FAN_SIGN
- *             - SEASON_GREETING
- *             - FAN_MEETING
- *             - CONCERT
- *             - MD
- *             - COLLABORATION
- *             - FAN_CLUB
- *             - ETC
- *       - in: query
- *         name: soldOut
- *         schema:
- *           type: string
- *           enum: ["true", "false"]
- *       - in: query
- *         name: sort
- *         schema:
- *           type: string
- *           enum: [recent, oldest, price_asc, price_desc]
- *           default: recent
- *     responses:
- *       200:
- *         description: 포토카드 목록 조회 성공
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/schemas/PhotoCardListResponse"
- */
-router.get(
-  "/",
-  validateRequest({ query: listPhotoCardsQuerySchema }),
-  photoCardController.listPhotoCards,
-);
-
-/**
- * @swagger
  * /photo-cards/me:
  *   get:
  *     summary: 내 포토카드 목록 조회
@@ -320,36 +248,6 @@ router.get(
   protect,
   validateRequest({ query: listMyPhotoCardsQuerySchema }),
   photoCardController.listMyPhotoCards,
-);
-
-/**
- * @swagger
- * /photo-cards/{photoCardId}:
- *   get:
- *     summary: 포토카드 상세 조회
- *     tags:
- *       - PhotoCards
- *     parameters:
- *       - in: path
- *         name: photoCardId
- *         required: true
- *         schema:
- *           type: integer
- *           minimum: 1
- *     responses:
- *       200:
- *         description: 포토카드 상세 조회 성공
- *         content:
- *           application/json:
- *             schema:
- *               $ref: "#/components/schemas/PhotoCard"
- *       404:
- *         description: 포토카드를 찾을 수 없음
- */
-router.get(
-  "/:photoCardId",
-  validateRequest({ params: photoCardIdParamsSchema }),
-  photoCardController.getPhotoCard,
 );
 
 export default router;

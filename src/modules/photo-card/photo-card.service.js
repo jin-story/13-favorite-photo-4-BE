@@ -40,54 +40,11 @@ function buildPhotoCardWhere(query) {
   };
 }
 
-function buildOrderBy(sort) {
-  if (sort === "oldest") return { createdAt: "asc" };
-  if (sort === "price_asc") return { minPrice: "asc" };
-  if (sort === "price_desc") return { minPrice: "desc" };
-  return { createdAt: "desc" };
-}
-
 export async function createPhotoCard(creatorId, payload) {
   const photoCard = await photoCardRepository.createPhotoCard({
     creatorId,
     data: payload,
   });
-
-  return toPhotoCardResponse(photoCard);
-}
-
-export async function listPhotoCards(query) {
-  const page = query.page;
-  const limit = query.limit;
-  const skip = (page - 1) * limit;
-  const take = limit;
-  const result = await photoCardRepository.listPhotoCards({
-    where: buildPhotoCardWhere(query),
-    orderBy: buildOrderBy(query.sort),
-    skip,
-    take,
-  });
-
-  return {
-    list: result.list.map((photoCard) => toPhotoCardResponse(photoCard)),
-    pagination: {
-      page,
-      limit,
-      total: result.total,
-      totalPages: Math.ceil(result.total / limit),
-    },
-  };
-}
-
-export async function getPhotoCard(photoCardId) {
-  const photoCard = await photoCardRepository.findPhotoCardById(photoCardId);
-
-  if (!photoCard) {
-    const error = new Error("포토카드를 찾을 수 없습니다.");
-    error.status = 404;
-    error.code = "PHOTO_CARD_NOT_FOUND";
-    throw error;
-  }
 
   return toPhotoCardResponse(photoCard);
 }
