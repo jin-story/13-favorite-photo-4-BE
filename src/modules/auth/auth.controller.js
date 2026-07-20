@@ -3,11 +3,14 @@ import userService from "../user/user.service.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 
+const REFRESH_TOKEN_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
+
 const REFRESH_TOKEN_COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: isProduction ? "none" : "lax",
   secure: isProduction,
   path: "/auth/refresh-token",
+  maxAge: REFRESH_TOKEN_MAX_AGE,
 };
 
 async function signup(req, res, next) {

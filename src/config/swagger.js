@@ -14,6 +14,11 @@ const swaggerOptions = {
           scheme: "bearer",
           bearerFormat: "JWT",
         },
+        refreshTokenCookie: {
+          type: "apiKey",
+          in: "cookie",
+          name: "refreshToken",
+        },
       },
     },
     servers: [
