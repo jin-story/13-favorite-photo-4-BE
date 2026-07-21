@@ -1,6 +1,6 @@
 import { PurchaseStatus } from "@prisma/client";
 
-const transactionData = [
+const TRANSACTION_DATA = [
   { id: 1, marketPostingId: 1, buyerId: 1, quantity: 3 },
   { id: 2, marketPostingId: 2, buyerId: 2, quantity: 1 },
   { id: 3, marketPostingId: 3, buyerId: 3, quantity: 2 },
@@ -13,11 +13,11 @@ const transactionData = [
   { id: 10, marketPostingId: 14, buyerId: 11, quantity: 1 },
 ];
 
-export async function seedTransactions(tx, seedData) {
+async function seedTransactions(tx, seedData) {
   const marketPostings = seedData.marketPostings;
   const seededAt = seedData.seededAt;
 
-  const transactions = transactionData.map((transaction, index) => {
+  const transactions = TRANSACTION_DATA.map((transaction, index) => {
     const marketPosting = marketPostings.find(
       (item) => item.id === transaction.marketPostingId,
     );
@@ -46,3 +46,5 @@ export async function seedTransactions(tx, seedData) {
     items: transactions,
   };
 }
+
+export { seedTransactions };

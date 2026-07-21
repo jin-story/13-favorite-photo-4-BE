@@ -1,4 +1,4 @@
-[
+const USERS = [
   {
     "id": 1,
     "nickname": "user1",
@@ -139,4 +139,6 @@
     "password": "password20",
     "points": 7000
   }
-]
+];
+
+export { USERS };

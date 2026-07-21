@@ -1,6 +1,6 @@
 import { MarketPostingStatus } from "@prisma/client";
 
-export async function seedMarketPostings(tx, photoCards) {
+async function seedMarketPostings(tx, photoCards) {
   const marketPostings = photoCards.map((photoCard) => ({
     id: photoCard.id,
     sellerId: photoCard.creatorId,
@@ -38,3 +38,5 @@ export async function seedMarketPostings(tx, photoCards) {
     items: marketPostings,
   };
 }
+
+export { seedMarketPostings };

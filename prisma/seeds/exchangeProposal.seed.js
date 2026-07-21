@@ -1,6 +1,6 @@
 import { ExchangeProposalStatus } from "@prisma/client";
 
-const exchangeProposalData = [
+const EXCHANGE_PROPOSAL_DATA = [
   {
     id: 1,
     marketPostingId: 12,
@@ -73,12 +73,12 @@ const exchangeProposalData = [
   },
 ];
 
-export async function seedExchangeProposals(tx, seedData) {
+async function seedExchangeProposals(tx, seedData) {
   const marketPostings = seedData.marketPostings;
   const inventories = seedData.inventories;
   const seededAt = seedData.seededAt;
 
-  const exchangeProposals = exchangeProposalData.map(
+  const exchangeProposals = EXCHANGE_PROPOSAL_DATA.map(
     (exchangeProposal, index) => {
       const marketPosting = marketPostings.find(
         (item) => item.id === exchangeProposal.marketPostingId,
@@ -110,3 +110,5 @@ export async function seedExchangeProposals(tx, seedData) {
     items: exchangeProposals,
   };
 }
+
+export { seedExchangeProposals };

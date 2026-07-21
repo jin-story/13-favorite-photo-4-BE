@@ -1,4 +1,4 @@
-[
+const PHOTO_CARDS = [
   {
     "id": 1,
     "userId": 2,
@@ -1199,4 +1199,6 @@
     "remainingQuantity": 1,
     "imageUrl": "https://picsum.photos/360/270?random=17"
   }
-]
+];
+
+export { PHOTO_CARDS };

@@ -1,4 +1,4 @@
-const purchasedInventories = [
+const PURCHASED_INVENTORIES = [
   { id: 101, userId: 1, photoCardId: 1, ownedQuantity: 3 },
   { id: 102, userId: 2, photoCardId: 2, ownedQuantity: 1 },
   { id: 103, userId: 3, photoCardId: 3, ownedQuantity: 2 },
@@ -11,7 +11,7 @@ const purchasedInventories = [
   { id: 110, userId: 11, photoCardId: 14, ownedQuantity: 1 },
 ];
 
-export async function seedInventories(tx, photoCards) {
+async function seedInventories(tx, photoCards) {
   const sellerInventories = photoCards.map((photoCard) => ({
     id: photoCard.id,
     userId: photoCard.creatorId,
@@ -21,7 +21,7 @@ export async function seedInventories(tx, photoCards) {
 
   const inventories = [
     ...sellerInventories,
-    ...purchasedInventories,
+    ...PURCHASED_INVENTORIES,
   ];
 
   const result = await tx.userInventory.createMany({
@@ -33,3 +33,5 @@ export async function seedInventories(tx, photoCards) {
     items: inventories,
   };
 }
+
+export { seedInventories };

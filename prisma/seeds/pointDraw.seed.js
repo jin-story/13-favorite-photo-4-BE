@@ -1,4 +1,4 @@
-const pointDrawValues = [
+const POINT_DRAW_VALUES = [
   { point: 100, minutesAgo: 120 },
   { point: 500, minutesAgo: 30 },
   { point: 1000, minutesAgo: 120 },
@@ -11,11 +11,11 @@ const pointDrawValues = [
   { point: 100, minutesAgo: 30 },
 ];
 
-export async function seedPointDraws(tx, seedData) {
+async function seedPointDraws(tx, seedData) {
   const users = seedData.users;
   const seededAt = seedData.seededAt;
 
-  const pointDraws = pointDrawValues.map((pointDraw, index) => ({
+  const pointDraws = POINT_DRAW_VALUES.map((pointDraw, index) => ({
     id: index + 1,
     userId: users[index].id,
     point: pointDraw.point,
@@ -33,3 +33,5 @@ export async function seedPointDraws(tx, seedData) {
     items: pointDraws,
   };
 }
+
+export { seedPointDraws };

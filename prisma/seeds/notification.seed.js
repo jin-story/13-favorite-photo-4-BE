@@ -1,6 +1,6 @@
 import { NotificationType } from "@prisma/client";
 
-export async function seedNotifications(tx, seedData) {
+async function seedNotifications(tx, seedData) {
   const transactions = seedData.transactions;
   const exchangeProposals = seedData.exchangeProposals;
   const marketPostings = seedData.marketPostings;
@@ -144,3 +144,5 @@ export async function seedNotifications(tx, seedData) {
     items: notifications,
   };
 }
+
+export { seedNotifications };

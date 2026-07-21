@@ -1,13 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 
-import { seedExchangeProposals } from "./seeds/exchanges.seed.js";
-import { seedInventories } from "./seeds/inventories.seed.js";
-import { seedMarketPostings } from "./seeds/market.seed.js";
-import { seedNotifications } from "./seeds/notifications.seed.js";
-import { seedPhotoCards } from "./seeds/photoCards.seed.js";
-import { seedPointDraws } from "./seeds/pointDraws.seed.js";
-import { seedTransactions } from "./seeds/transactions.seed.js";
-import { seedUsers } from "./seeds/users.seed.js";
+import { seedExchangeProposals } from "./seeds/exchangeProposal.seed.js";
+import { seedInventories } from "./seeds/inventory.seed.js";
+import { seedMarketPostings } from "./seeds/marketPosting.seed.js";
+import { seedNotifications } from "./seeds/notification.seed.js";
+import { seedPhotoCards } from "./seeds/photoCard.seed.js";
+import { seedPointDraws } from "./seeds/pointDraw.seed.js";
+import { seedTransactions } from "./seeds/transaction.seed.js";
+import { seedUsers } from "./seeds/user.seed.js";
 
 const prisma = new PrismaClient();
 
@@ -98,57 +98,54 @@ async function resetSequences(tx) {
 }
 
 async function main() {
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("프로덕션 환경에서는 seed를 실행할 수 없습니다.");
-  }
-
   const seededAt = new Date();
 
-  const result = await prisma.$transaction(
-    async (tx) => {
-      await resetDatabase(tx);
+  const result = await prisma.$transaction(async (tx) => {
+    await resetDatabase(tx);
 
-      const users = await seedUsers(tx);
-      const photoCards = await seedPhotoCards(tx);
-      const inventories = await seedInventories(tx, photoCards.items);
-      const marketPostings = await seedMarketPostings(tx, photoCards.items);
-      const pointDraws = await seedPointDraws(tx, {
-        users: users.items,
-        seededAt,
-      });
-      const transactions = await seedTransactions(tx, {
-        marketPostings: marketPostings.items,
-        seededAt,
-      });
-      const exchangeProposals = await seedExchangeProposals(tx, {
-        marketPostings: marketPostings.items,
-        inventories: inventories.items,
-        seededAt,
-      });
-      const notifications = await seedNotifications(tx, {
-        transactions: transactions.items,
-        exchangeProposals: exchangeProposals.items,
-        marketPostings: marketPostings.items,
-        seededAt,
-      });
+    const users = await seedUsers(tx);
 
-      await resetSequences(tx);
+    const photoCards = await seedPhotoCards(tx);
 
-      return {
-        users,
-        photoCards,
-        inventories,
-        marketPostings,
-        pointDraws,
-        transactions,
-        exchangeProposals,
-        notifications,
-      };
-    },
-    {
-      timeout: 30_000,
-    },
-  );
+    const inventories = await seedInventories(tx, photoCards.items);
+
+    const marketPostings = await seedMarketPostings(tx, photoCards.items);
+
+    const pointDraws = await seedPointDraws(tx, {
+      users: users.items,
+      seededAt,
+    });
+
+    const transactions = await seedTransactions(tx, {
+      marketPostings: marketPostings.items,
+      seededAt,
+    });
+
+    const exchangeProposals = await seedExchangeProposals(tx, {
+      marketPostings: marketPostings.items,
+      inventories: inventories.items,
+      seededAt,
+    });
+
+    const notifications = await seedNotifications(tx, {
+      transactions: transactions.items,
+      exchangeProposals: exchangeProposals.items,
+      marketPostings: marketPostings.items,
+    });
+
+    await resetSequences(tx);
+
+    return {
+      users,
+      photoCards,
+      inventories,
+      marketPostings,
+      pointDraws,
+      transactions,
+      exchangeProposals,
+      notifications,
+    };
+  });
 
   console.log("시드 데이터 생성 완료");
   console.log(`User: ${result.users.count}개`);
@@ -159,7 +156,6 @@ async function main() {
   console.log(`Transaction: ${result.transactions.count}개`);
   console.log(`ExchangeProposal: ${result.exchangeProposals.count}개`);
   console.log(`Notification: ${result.notifications.count}개`);
-  console.log("테스트 로그인: user1@example.com / password1");
 }
 
 main()
