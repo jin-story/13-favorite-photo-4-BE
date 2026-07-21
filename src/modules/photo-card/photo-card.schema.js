@@ -29,6 +29,23 @@ export const createPhotoCardBodySchema = z
   })
   .strict();
 
+export const photoCardIdParamsSchema = z.object({
+  photoCardId: positiveInt,
+});
+
+export const listPhotoCardsQuerySchema = z.object({
+  page: positiveInt.default(1),
+  limit: positiveInt.max(100).default(10),
+  keyword: z.string().trim().optional(),
+  grade: gradeSchema.optional(),
+  genre: genreSchema.optional(),
+  soldOut: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional(),
+  sort: z.enum(["recent", "oldest", "price_asc", "price_desc"]).default("recent"),
+});
+
 export const listMyPhotoCardsQuerySchema = z.object({
   page: positiveInt.default(1),
   limit: positiveInt.max(100).default(10),

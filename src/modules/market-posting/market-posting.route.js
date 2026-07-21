@@ -210,7 +210,7 @@ const router = Router();
  *     summary: 전체 판매글 목록 조회
  *     description: 마켓플레이스에 등록된 판매 중인 포토카드 목록을 조회합니다. 검색, 등급/장르 필터, 최신/오래된 순 및 낮은/높은 가격 순 정렬이 가능합니다.
  *     tags:
- *       - MarketPostings
+ *       - Marketplace
  *     parameters:
  *       - in: query
  *         name: page
@@ -276,7 +276,7 @@ router.get(
  *     summary: 판매글 등록
  *     description: 로그인 사용자가 기존에 보유한 포토카드를 판매글로 등록합니다. 등록 수량만큼 UserInventory.ownedQuantity가 차감되고, remainingQuantity는 등록 수량으로 설정됩니다.
  *     tags:
- *       - MarketPostings
+ *       - Marketplace
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -319,7 +319,7 @@ router.post(
  *     summary: 판매글 상세 조회
  *     description: 마켓플레이스에 등록된 포토카드 판매글 상세 정보를 조회합니다.
  *     tags:
- *       - MarketPostings
+ *       - Marketplace
  *     parameters:
  *       - in: path
  *         name: marketPostingId
@@ -350,7 +350,7 @@ router.get(
  *     summary: 판매글 수정
  *     description: 판매자 본인만 판매 중인 판매글의 수량, 가격, 설명, 교환 희망 조건을 수정할 수 있습니다.
  *     tags:
- *       - MarketPostings
+ *       - Marketplace
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -397,7 +397,7 @@ router.patch(
  *     summary: 판매글 내리기
  *     description: 판매자 본인만 판매 중인 판매글을 내릴 수 있습니다. 남은 판매 수량은 UserInventory.ownedQuantity로 복구됩니다.
  *     tags:
- *       - MarketPostings
+ *       - Marketplace
  *     security:
  *       - bearerAuth: []
  *     parameters:
