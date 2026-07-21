@@ -43,12 +43,24 @@ async function update(id, data) {
   });
 }
 
-async function findInventoriesByUserId(userId) {
+async function findInventoriesByUserId(userId, { keyword, grade, genre } = {}) {
   return prisma.userInventory.findMany({
     where: {
       userId,
       ownedQuantity: {
         gt: 0,
+      },
+      photoCard: {
+        is: {
+          ...(keyword && {
+            name: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          }),
+          ...(grade && { grade }),
+          ...(genre && { genre }),
+        },
       },
     },
     select: {
