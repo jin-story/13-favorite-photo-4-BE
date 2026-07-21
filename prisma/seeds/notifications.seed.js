@@ -1,44 +1,20 @@
 import { NotificationType } from "@prisma/client";
 
-export async function seedNotifications(
-  tx,
-  {
-    transactions,
-    exchangeProposals,
-    marketPostings,
-    seededAt,
-  },
-) {
-  const transaction1 = transactions.find(
-    (transaction) => transaction.id === 1,
-  );
-  const transaction2 = transactions.find(
-    (transaction) => transaction.id === 2,
-  );
-  const exchangeProposal1 = exchangeProposals.find(
-    (exchangeProposal) => exchangeProposal.id === 1,
-  );
-  const exchangeProposal5 = exchangeProposals.find(
-    (exchangeProposal) => exchangeProposal.id === 5,
-  );
-  const exchangeProposal6 = exchangeProposals.find(
-    (exchangeProposal) => exchangeProposal.id === 6,
-  );
-  const marketPosting1 = marketPostings.find(
-    (marketPosting) => marketPosting.id === 1,
-  );
-  const marketPosting2 = marketPostings.find(
-    (marketPosting) => marketPosting.id === 2,
-  );
-  const marketPosting12 = marketPostings.find(
-    (marketPosting) => marketPosting.id === 12,
-  );
-  const marketPosting6 = marketPostings.find(
-    (marketPosting) => marketPosting.id === 6,
-  );
-  const marketPosting53 = marketPostings.find(
-    (marketPosting) => marketPosting.id === 53,
-  );
+export async function seedNotifications(tx, seedData) {
+  const transactions = seedData.transactions;
+  const exchangeProposals = seedData.exchangeProposals;
+  const marketPostings = seedData.marketPostings;
+
+  const transaction1 = transactions.find((item) => item.id === 1);
+  const transaction2 = transactions.find((item) => item.id === 2);
+  const exchangeProposal1 = exchangeProposals.find((item) => item.id === 1);
+  const exchangeProposal5 = exchangeProposals.find((item) => item.id === 5);
+  const exchangeProposal6 = exchangeProposals.find((item) => item.id === 6);
+  const marketPosting1 = marketPostings.find((item) => item.id === 1);
+  const marketPosting2 = marketPostings.find((item) => item.id === 2);
+  const marketPosting6 = marketPostings.find((item) => item.id === 6);
+  const marketPosting12 = marketPostings.find((item) => item.id === 12);
+  const marketPosting53 = marketPostings.find((item) => item.id === 53);
 
   const notifications = [
     {
@@ -74,9 +50,7 @@ export async function seedNotifications(
       message: "판매 중인 포토카드가 품절되었습니다.",
       isRead: false,
       readAt: null,
-      createdAt: new Date(
-        transaction1.createdAt.getTime() + 60 * 1000,
-      ),
+      createdAt: transaction1.createdAt,
     },
     {
       id: 4,
@@ -133,13 +107,9 @@ export async function seedNotifications(
       message: "포토카드 교환 제안이 거절되었습니다.",
       isRead: true,
       readAt: new Date(
-        exchangeProposal5.createdAt.getTime() +
-          10 * 60 * 1000,
+        exchangeProposal5.createdAt.getTime() + 10 * 60 * 1000,
       ),
-      createdAt: new Date(
-        exchangeProposal5.createdAt.getTime() +
-          5 * 60 * 1000,
-      ),
+      createdAt: exchangeProposal5.createdAt,
     },
     {
       id: 9,
@@ -161,10 +131,7 @@ export async function seedNotifications(
       message: "포토카드 교환 제안이 거절되었습니다.",
       isRead: false,
       readAt: null,
-      createdAt: new Date(
-        exchangeProposal6.createdAt.getTime() +
-          5 * 60 * 1000,
-      ),
+      createdAt: exchangeProposal6.createdAt,
     },
   ];
 

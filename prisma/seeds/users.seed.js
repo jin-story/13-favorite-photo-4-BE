@@ -3,9 +3,12 @@ import fs from "fs";
 import { AuthProvider } from "@prisma/client";
 import bcrypt from "bcrypt";
 
-const users = JSON.parse(
-  fs.readFileSync("prisma/seed-data/users.json", "utf8"),
+const usersFile = fs.readFileSync(
+  "prisma/seed-data/users.json",
+  "utf8",
 );
+
+const users = JSON.parse(usersFile);
 
 export async function seedUsers(tx) {
   const encryptedUsers = await Promise.all(

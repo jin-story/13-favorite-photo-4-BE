@@ -17,7 +17,7 @@ export async function seedMarketPostings(tx, photoCards) {
         : MarketPostingStatus.ON_SALE,
   }));
 
-  const data = marketPostings.map((marketPosting) => ({
+  const marketPostingData = marketPostings.map((marketPosting) => ({
     id: marketPosting.id,
     sellerId: marketPosting.sellerId,
     userInventoryId: marketPosting.userInventoryId,
@@ -30,7 +30,7 @@ export async function seedMarketPostings(tx, photoCards) {
   }));
 
   const result = await tx.marketPosting.createMany({
-    data,
+    data: marketPostingData,
   });
 
   return {

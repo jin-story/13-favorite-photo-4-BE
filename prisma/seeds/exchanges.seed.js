@@ -73,32 +73,19 @@ const exchangeProposalData = [
   },
 ];
 
-export async function seedExchangeProposals(
-  tx,
-  { marketPostings, inventories, seededAt },
-) {
+export async function seedExchangeProposals(tx, seedData) {
+  const marketPostings = seedData.marketPostings;
+  const inventories = seedData.inventories;
+  const seededAt = seedData.seededAt;
+
   const exchangeProposals = exchangeProposalData.map(
     (exchangeProposal, index) => {
       const marketPosting = marketPostings.find(
-        (item) =>
-          item.id === exchangeProposal.marketPostingId,
+        (item) => item.id === exchangeProposal.marketPostingId,
       );
       const offeredInventory = inventories.find(
-        (item) =>
-          item.id === exchangeProposal.offeredInventoryId,
+        (item) => item.id === exchangeProposal.offeredInventoryId,
       );
-
-      if (!marketPosting) {
-        throw new Error(
-          `교환 대상 판매글을 찾을 수 없습니다. marketPostingId=${exchangeProposal.marketPostingId}`,
-        );
-      }
-
-      if (!offeredInventory) {
-        throw new Error(
-          `제안할 인벤토리를 찾을 수 없습니다. offeredInventoryId=${exchangeProposal.offeredInventoryId}`,
-        );
-      }
 
       return {
         id: exchangeProposal.id,
@@ -108,8 +95,7 @@ export async function seedExchangeProposals(
         message: `${marketPosting.title} 카드와 교환을 제안합니다.`,
         status: exchangeProposal.status,
         createdAt: new Date(
-          seededAt.getTime() -
-            (index + 1) * 2 * 60 * 60 * 1000,
+          seededAt.getTime() - (index + 1) * 2 * 60 * 60 * 1000,
         ),
       };
     },

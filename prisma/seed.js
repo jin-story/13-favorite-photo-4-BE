@@ -26,73 +26,73 @@ async function resetDatabase(tx) {
 async function resetSequences(tx) {
   await tx.$queryRaw`
     SELECT setval(
-      pg_get_serial_sequence('"users"', 'id'),
-      MAX(id),
-      true
-    )
+             pg_get_serial_sequence('"users"', 'id'),
+             MAX(id),
+             true
+           )
     FROM "users";
   `;
 
   await tx.$queryRaw`
     SELECT setval(
-      pg_get_serial_sequence('"photo_cards"', 'id'),
-      MAX(id),
-      true
-    )
+             pg_get_serial_sequence('"photo_cards"', 'id'),
+             MAX(id),
+             true
+           )
     FROM "photo_cards";
   `;
 
   await tx.$queryRaw`
     SELECT setval(
-      pg_get_serial_sequence('"user_inventories"', 'id'),
-      MAX(id),
-      true
-    )
+             pg_get_serial_sequence('"user_inventories"', 'id'),
+             MAX(id),
+             true
+           )
     FROM "user_inventories";
   `;
 
   await tx.$queryRaw`
     SELECT setval(
-      pg_get_serial_sequence('"market_postings"', 'id'),
-      MAX(id),
-      true
-    )
+             pg_get_serial_sequence('"market_postings"', 'id'),
+             MAX(id),
+             true
+           )
     FROM "market_postings";
   `;
 
   await tx.$queryRaw`
     SELECT setval(
-      pg_get_serial_sequence('"point_draws"', 'id'),
-      MAX(id),
-      true
-    )
+             pg_get_serial_sequence('"point_draws"', 'id'),
+             MAX(id),
+             true
+           )
     FROM "point_draws";
   `;
 
   await tx.$queryRaw`
     SELECT setval(
-      pg_get_serial_sequence('"transactions"', 'id'),
-      MAX(id),
-      true
-    )
+             pg_get_serial_sequence('"transactions"', 'id'),
+             MAX(id),
+             true
+           )
     FROM "transactions";
   `;
 
   await tx.$queryRaw`
     SELECT setval(
-      pg_get_serial_sequence('"exchange_proposals"', 'id'),
-      MAX(id),
-      true
-    )
+             pg_get_serial_sequence('"exchange_proposals"', 'id'),
+             MAX(id),
+             true
+           )
     FROM "exchange_proposals";
   `;
 
   await tx.$queryRaw`
     SELECT setval(
-      pg_get_serial_sequence('"notifications"', 'id'),
-      MAX(id),
-      true
-    )
+             pg_get_serial_sequence('"notifications"', 'id'),
+             MAX(id),
+             true
+           )
     FROM "notifications";
   `;
 }
