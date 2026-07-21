@@ -1,1427 +1,165 @@
-import {
-  PrismaClient,
-  AuthProvider,
-  Grade,
-  Genre,
-  MarketPostingStatus,
-} from "@prisma/client";
-import bcrypt from "bcrypt";
+import { PrismaClient } from "@prisma/client";
+
+import { seedExchangeProposals } from "./seeds/exchanges.seed.js";
+import { seedInventories } from "./seeds/inventories.seed.js";
+import { seedMarketPostings } from "./seeds/market.seed.js";
+import { seedNotifications } from "./seeds/notifications.seed.js";
+import { seedPhotoCards } from "./seeds/photoCards.seed.js";
+import { seedPointDraws } from "./seeds/pointDraws.seed.js";
+import { seedTransactions } from "./seeds/transactions.seed.js";
+import { seedUsers } from "./seeds/users.seed.js";
 
 const prisma = new PrismaClient();
 
-const users = [
-  [1, "user1", "user1@example.com", "password1", 16000],
-  [2, "user2", "user2@example.com", "password2", 17000],
-  [3, "user3", "user3@example.com", "password3", 24000],
-  [4, "user4", "user4@example.com", "password4", 19000],
-  [5, "user5", "user5@example.com", "password5", 25000],
-  [6, "user6", "user6@example.com", "password6", 20000],
-  [7, "user7", "user7@example.com", "password7", 14000],
-  [8, "user8", "user8@example.com", "password8", 5000],
-  [9, "user9", "user9@example.com", "password9", 12000],
-  [10, "user10", "user10@example.com", "password10", 27000],
-  [11, "user11", "user11@example.com", "password11", 2000],
-  [12, "user12", "user12@example.com", "password12", 2000],
-  [13, "user13", "user13@example.com", "password13", 15000],
-  [14, "user14", "user14@example.com", "password14", 2000],
-  [15, "user15", "user15@example.com", "password15", 11000],
-  [16, "user16", "user16@example.com", "password16", 18000],
-  [17, "user17", "user17@example.com", "password17", 1000],
-  [18, "user18", "user18@example.com", "password18", 2000],
-  [19, "user19", "user19@example.com", "password19", 19000],
-  [20, "user20", "user20@example.com", "password20", 7000],
-].map(([id, nickname, email, password, points]) => ({
-  id,
-  nickname,
-  email,
-  password,
-  points,
-}));
-
-const cards = [
-  [
-    1,
-    2,
-    "빌리 문수아 콘서트",
-    "빌리 문수아 콘서트 포카입니다.",
-    "콘서트",
-    "common",
-    8000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=10",
-  ],
-  [
-    2,
-    11,
-    "NCT 유우시 특전",
-    "NCT 유우시 특전 포카입니다.",
-    "특전",
-    "super rare",
-    22000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=11",
-  ],
-  [
-    3,
-    14,
-    "NCT 시온 앨범",
-    "NCT 시온 앨범 포카입니다.",
-    "앨범",
-    "rare",
-    12000,
-    3,
-    1,
-    "https://picsum.photos/360/270?random=13",
-  ],
-  [
-    4,
-    4,
-    "소녀시대 유리 콜라보",
-    "소녀시대 유리 콜라보 포카입니다.",
-    "콜라보",
-    "common",
-    10000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=15",
-  ],
-  [
-    5,
-    20,
-    "IVE 레이 콜라보",
-    "IVE 레이 콜라보 포카입니다.",
-    "콜라보",
-    "super rare",
-    26000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=8",
-  ],
-  [
-    6,
-    7,
-    "소녀시대 태연 MD",
-    "소녀시대 태연 MD 포카입니다.",
-    "MD",
-    "common",
-    27000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=14",
-  ],
-  [
-    7,
-    15,
-    "DKZ 재찬 팬싸",
-    "DKZ 재찬 팬싸 포카입니다.",
-    "팬싸",
-    "super rare",
-    12000,
-    2,
-    0,
-    "https://picsum.photos/360/270?random=5",
-  ],
-  [
-    8,
-    20,
-    "DAY6 도운 콘서트",
-    "DAY6 도운 콘서트 포카입니다.",
-    "콘서트",
-    "common",
-    17000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=1",
-  ],
-  [
-    9,
-    13,
-    "트와이스 채영 팬싸",
-    "트와이스 채영 팬싸 포카입니다.",
-    "팬싸",
-    "legendary",
-    8000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=18",
-  ],
-  [
-    10,
-    14,
-    "이달의 소녀 현진 기타",
-    "이달의 소녀 현진 기타 포카입니다.",
-    "기타",
-    "legendary",
-    21000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=2",
-  ],
-  [
-    11,
-    10,
-    "우주소녀 은서 콘서트",
-    "우주소녀 은서 콘서트 포카입니다.",
-    "콘서트",
-    "common",
-    29000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=14",
-  ],
-  [
-    12,
-    2,
-    "세븐틴 준 팬싸",
-    "세븐틴 준 팬싸 포카입니다.",
-    "팬싸",
-    "common",
-    17000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=16",
-  ],
-  [
-    13,
-    13,
-    "DKZ 재찬 앨범",
-    "DKZ 재찬 앨범 포카입니다.",
-    "앨범",
-    "rare",
-    8000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=7",
-  ],
-  [
-    14,
-    3,
-    "베리베리 호영 콘서트",
-    "베리베리 호영 콘서트 포카입니다.",
-    "콘서트",
-    "rare",
-    9000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=13",
-  ],
-  [
-    15,
-    9,
-    "세븐틴 조슈아 콘서트",
-    "세븐틴 조슈아 콘서트 포카입니다.",
-    "콘서트",
-    "common",
-    21000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=2",
-  ],
-  [
-    16,
-    3,
-    "여자아이들 민니 팬싸",
-    "여자아이들 민니 팬싸 포카입니다.",
-    "팬싸",
-    "super rare",
-    28000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=8",
-  ],
-  [
-    17,
-    10,
-    "TXT 휴닝카이 특전",
-    "TXT 휴닝카이 특전 포카입니다.",
-    "특전",
-    "common",
-    25000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=19",
-  ],
-  [
-    18,
-    1,
-    "여자아이들 우기 콘서트",
-    "여자아이들 우기 콘서트 포카입니다.",
-    "콘서트",
-    "common",
-    18000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=3",
-  ],
-  [
-    19,
-    5,
-    "세븐틴 민규 팬싸",
-    "세븐틴 민규 팬싸 포카입니다.",
-    "팬싸",
-    "legendary",
-    19000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=6",
-  ],
-  [
-    20,
-    10,
-    "NCT 정우 팬미팅",
-    "NCT 정우 팬미팅 포카입니다.",
-    "팬미팅",
-    "rare",
-    8000,
-    3,
-    1,
-    "https://picsum.photos/360/270?random=5",
-  ],
-  [
-    21,
-    3,
-    "스테이씨 수민 특전",
-    "스테이씨 수민 특전 포카입니다.",
-    "특전",
-    "common",
-    24000,
-    3,
-    1,
-    "https://picsum.photos/360/270?random=6",
-  ],
-  [
-    22,
-    12,
-    "CIX BX MD",
-    "CIX BX MD 포카입니다.",
-    "MD",
-    "legendary",
-    18000,
-    2,
-    0,
-    "https://picsum.photos/360/270?random=11",
-  ],
-  [
-    23,
-    15,
-    "NCT 쟈니 시즌그리팅",
-    "NCT 쟈니 시즌그리팅 포카입니다.",
-    "시즌그리팅",
-    "super rare",
-    20000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=7",
-  ],
-  [
-    24,
-    13,
-    "IVE 가을 앨범",
-    "IVE 가을 앨범 포카입니다.",
-    "앨범",
-    "rare",
-    21000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=1",
-  ],
-  [
-    25,
-    3,
-    "EVNNE 박지후 MD",
-    "EVNNE 박지후 MD 포카입니다.",
-    "MD",
-    "super rare",
-    11000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=3",
-  ],
-  [
-    26,
-    11,
-    "세븐틴 민규 특전",
-    "세븐틴 민규 특전 포카입니다.",
-    "특전",
-    "rare",
-    20000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=11",
-  ],
-  [
-    27,
-    14,
-    "소녀시대 써니 MD",
-    "소녀시대 써니 MD 포카입니다.",
-    "MD",
-    "legendary",
-    20000,
-    3,
-    3,
-    "https://picsum.photos/360/270?random=18",
-  ],
-  [
-    28,
-    7,
-    "EXO 시우민 콜라보",
-    "EXO 시우민 콜라보 포카입니다.",
-    "콜라보",
-    "rare",
-    20000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=0",
-  ],
-  [
-    29,
-    2,
-    "NCT 쟈니 팬미팅",
-    "NCT 쟈니 팬미팅 포카입니다.",
-    "팬미팅",
-    "legendary",
-    28000,
-    3,
-    2,
-    "https://picsum.photos/360/270?random=15",
-  ],
-  [
-    30,
-    18,
-    "에이티즈 산 앨범",
-    "에이티즈 산 앨범 포카입니다.",
-    "앨범",
-    "super rare",
-    15000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=9",
-  ],
-  [
-    31,
-    17,
-    "펜타곤 우석 콘서트",
-    "펜타곤 우석 콘서트 포카입니다.",
-    "콘서트",
-    "legendary",
-    12000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=5",
-  ],
-  [
-    32,
-    3,
-    "에스파 지젤 MD",
-    "에스파 지젤 MD 포카입니다.",
-    "MD",
-    "rare",
-    11000,
-    3,
-    2,
-    "https://picsum.photos/360/270?random=10",
-  ],
-  [
-    33,
-    13,
-    "세븐틴 에스쿱스 특전",
-    "세븐틴 에스쿱스 특전 포카입니다.",
-    "특전",
-    "legendary",
-    27000,
-    3,
-    2,
-    "https://picsum.photos/360/270?random=9",
-  ],
-  [
-    34,
-    1,
-    "CLASS:y 박보은 MD",
-    "CLASS:y 박보은 MD 포카입니다.",
-    "MD",
-    "common",
-    26000,
-    3,
-    2,
-    "https://picsum.photos/360/270?random=18",
-  ],
-  [
-    35,
-    11,
-    "SF9 로운 팬싸",
-    "SF9 로운 팬싸 포카입니다.",
-    "팬싸",
-    "common",
-    12000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=13",
-  ],
-  [
-    36,
-    19,
-    "이달의 소녀 진솔 팬싸",
-    "이달의 소녀 진솔 팬싸 포카입니다.",
-    "팬싸",
-    "legendary",
-    18000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=15",
-  ],
-  [
-    37,
-    6,
-    "르세라핌 허윤진 앨범",
-    "르세라핌 허윤진 앨범 포카입니다.",
-    "앨범",
-    "rare",
-    22000,
-    3,
-    2,
-    "https://picsum.photos/360/270?random=8",
-  ],
-  [
-    38,
-    1,
-    "크래비티 태영 MD",
-    "크래비티 태영 MD 포카입니다.",
-    "MD",
-    "rare",
-    7000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=8",
-  ],
-  [
-    39,
-    20,
-    "EXO 첸 앨범",
-    "EXO 첸 앨범 포카입니다.",
-    "앨범",
-    "rare",
-    9000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=5",
-  ],
-  [
-    40,
-    7,
-    "CLASS:y 박보은 팬미팅",
-    "CLASS:y 박보은 팬미팅 포카입니다.",
-    "팬미팅",
-    "rare",
-    18000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=16",
-  ],
-  [
-    41,
-    12,
-    "에이티즈 우영 팬클럽",
-    "에이티즈 우영 팬클럽 포카입니다.",
-    "팬클럽",
-    "legendary",
-    11000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=8",
-  ],
-  [
-    42,
-    15,
-    "NCT 시온 팬클럽",
-    "NCT 시온 팬클럽 포카입니다.",
-    "팬클럽",
-    "common",
-    23000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=7",
-  ],
-  [
-    43,
-    13,
-    "NCT 리쿠 MD",
-    "NCT 리쿠 MD 포카입니다.",
-    "MD",
-    "legendary",
-    27000,
-    2,
-    0,
-    "https://picsum.photos/360/270?random=1",
-  ],
-  [
-    44,
-    2,
-    "NMIXX 규진 콘서트",
-    "NMIXX 규진 콘서트 포카입니다.",
-    "콘서트",
-    "super rare",
-    19000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=9",
-  ],
-  [
-    45,
-    13,
-    "블랙핑크 지수 기타",
-    "블랙핑크 지수 기타 포카입니다.",
-    "기타",
-    "common",
-    22000,
-    3,
-    1,
-    "https://picsum.photos/360/270?random=5",
-  ],
-  [
-    46,
-    6,
-    "ZEROBASEONE 박건욱 MD",
-    "ZEROBASEONE 박건욱 MD 포카입니다.",
-    "MD",
-    "common",
-    27000,
-    2,
-    0,
-    "https://picsum.photos/360/270?random=7",
-  ],
-  [
-    47,
-    18,
-    "세븐틴 민규 MD",
-    "세븐틴 민규 MD 포카입니다.",
-    "MD",
-    "common",
-    23000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=7",
-  ],
-  [
-    48,
-    5,
-    "이달의 소녀 최리 팬클럽",
-    "이달의 소녀 최리 팬클럽 포카입니다.",
-    "팬클럽",
-    "legendary",
-    13000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=16",
-  ],
-  [
-    49,
-    9,
-    "이달의 소녀 이브 앨범",
-    "이달의 소녀 이브 앨범 포카입니다.",
-    "앨범",
-    "legendary",
-    17000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=15",
-  ],
-  [
-    50,
-    17,
-    "엔하이픈 정원 MD",
-    "엔하이픈 정원 MD 포카입니다.",
-    "MD",
-    "super rare",
-    15000,
-    2,
-    0,
-    "https://picsum.photos/360/270?random=2",
-  ],
-  [
-    51,
-    10,
-    "에스파 카리나 특전",
-    "에스파 카리나 특전 포카입니다.",
-    "특전",
-    "rare",
-    7000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=9",
-  ],
-  [
-    52,
-    9,
-    "오마이걸 승희 앨범",
-    "오마이걸 승희 앨범 포카입니다.",
-    "앨범",
-    "legendary",
-    18000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=13",
-  ],
-  [
-    53,
-    8,
-    "NCT 유타 시즌그리팅",
-    "NCT 유타 시즌그리팅 포카입니다.",
-    "시즌그리팅",
-    "legendary",
-    18000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=18",
-  ],
-  [
-    54,
-    15,
-    "온앤오프 효진 콘서트",
-    "온앤오프 효진 콘서트 포카입니다.",
-    "콘서트",
-    "legendary",
-    7000,
-    3,
-    3,
-    "https://picsum.photos/360/270?random=3",
-  ],
-  [
-    55,
-    17,
-    "NCT 샤오쥔 앨범",
-    "NCT 샤오쥔 앨범 포카입니다.",
-    "앨범",
-    "rare",
-    10000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=19",
-  ],
-  [
-    56,
-    16,
-    "NMIXX 지우 앨범",
-    "NMIXX 지우 앨범 포카입니다.",
-    "앨범",
-    "common",
-    23000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=0",
-  ],
-  [
-    57,
-    8,
-    "더보이즈 주연 팬클럽",
-    "더보이즈 주연 팬클럽 포카입니다.",
-    "팬클럽",
-    "legendary",
-    12000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=1",
-  ],
-  [
-    58,
-    2,
-    "트와이스 모모 팬미팅",
-    "트와이스 모모 팬미팅 포카입니다.",
-    "팬미팅",
-    "legendary",
-    28000,
-    3,
-    1,
-    "https://picsum.photos/360/270?random=13",
-  ],
-  [
-    59,
-    20,
-    "아스트로 진진 특전",
-    "아스트로 진진 특전 포카입니다.",
-    "특전",
-    "common",
-    11000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=3",
-  ],
-  [
-    60,
-    8,
-    "트레저 마시호 앨범",
-    "트레저 마시호 앨범 포카입니다.",
-    "앨범",
-    "rare",
-    17000,
-    3,
-    2,
-    "https://picsum.photos/360/270?random=0",
-  ],
-  [
-    61,
-    15,
-    "블랙핑크 리사 팬클럽",
-    "블랙핑크 리사 팬클럽 포카입니다.",
-    "팬클럽",
-    "legendary",
-    28000,
-    3,
-    3,
-    "https://picsum.photos/360/270?random=9",
-  ],
-  [
-    62,
-    2,
-    "EVNNE 유승언 팬싸",
-    "EVNNE 유승언 팬싸 포카입니다.",
-    "팬싸",
-    "super rare",
-    25000,
-    3,
-    3,
-    "https://picsum.photos/360/270?random=11",
-  ],
-  [
-    63,
-    6,
-    "아스트로 문빈 기타",
-    "아스트로 문빈 기타 포카입니다.",
-    "기타",
-    "rare",
-    29000,
-    3,
-    1,
-    "https://picsum.photos/360/270?random=19",
-  ],
-  [
-    64,
-    1,
-    "세븐틴 우지 앨범",
-    "세븐틴 우지 앨범 포카입니다.",
-    "앨범",
-    "legendary",
-    13000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=12",
-  ],
-  [
-    65,
-    7,
-    "트레저 지훈 팬싸",
-    "트레저 지훈 팬싸 포카입니다.",
-    "팬싸",
-    "super rare",
-    15000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=18",
-  ],
-  [
-    66,
-    15,
-    "NCT 유타 콜라보",
-    "NCT 유타 콜라보 포카입니다.",
-    "콜라보",
-    "super rare",
-    13000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=2",
-  ],
-  [
-    67,
-    7,
-    "베리베리 연호 MD",
-    "베리베리 연호 MD 포카입니다.",
-    "MD",
-    "legendary",
-    20000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=2",
-  ],
-  [
-    68,
-    4,
-    "EVNNE 케이타 콘서트",
-    "EVNNE 케이타 콘서트 포카입니다.",
-    "콘서트",
-    "super rare",
-    13000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=7",
-  ],
-  [
-    69,
-    11,
-    "EVNNE 이정현 특전",
-    "EVNNE 이정현 특전 포카입니다.",
-    "특전",
-    "rare",
-    9000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=9",
-  ],
-  [
-    70,
-    7,
-    "CLASS:y 명형서 팬싸",
-    "CLASS:y 명형서 팬싸 포카입니다.",
-    "팬싸",
-    "super rare",
-    20000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=17",
-  ],
-  [
-    71,
-    9,
-    "슈퍼엠 텐 기타",
-    "슈퍼엠 텐 기타 포카입니다.",
-    "기타",
-    "super rare",
-    15000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=13",
-  ],
-  [
-    72,
-    7,
-    "빌리 츠키 팬미팅",
-    "빌리 츠키 팬미팅 포카입니다.",
-    "팬미팅",
-    "common",
-    25000,
-    2,
-    0,
-    "https://picsum.photos/360/270?random=11",
-  ],
-  [
-    73,
-    5,
-    "세븐틴 조슈아 앨범",
-    "세븐틴 조슈아 앨범 포카입니다.",
-    "앨범",
-    "super rare",
-    13000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=19",
-  ],
-  [
-    74,
-    9,
-    "르세라핌 카즈하 콜라보",
-    "르세라핌 카즈하 콜라보 포카입니다.",
-    "콜라보",
-    "super rare",
-    12000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=14",
-  ],
-  [
-    75,
-    16,
-    "TXT 범규 팬미팅",
-    "TXT 범규 팬미팅 포카입니다.",
-    "팬미팅",
-    "legendary",
-    28000,
-    2,
-    2,
-    "https://picsum.photos/360/270?random=4",
-  ],
-  [
-    76,
-    16,
-    "르세라핌 사쿠라 앨범",
-    "르세라핌 사쿠라 앨범 포카입니다.",
-    "앨범",
-    "legendary",
-    20000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=11",
-  ],
-  [
-    77,
-    4,
-    "SF9 휘영 특전",
-    "SF9 휘영 특전 포카입니다.",
-    "특전",
-    "legendary",
-    15000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=14",
-  ],
-  [
-    78,
-    13,
-    "ITZY 유나 기타",
-    "ITZY 유나 기타 포카입니다.",
-    "기타",
-    "rare",
-    29000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=6",
-  ],
-  [
-    79,
-    5,
-    "아스트로 차은우 팬싸",
-    "아스트로 차은우 팬싸 포카입니다.",
-    "팬싸",
-    "legendary",
-    12000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=1",
-  ],
-  [
-    80,
-    13,
-    "NCT 도영 팬싸",
-    "NCT 도영 팬싸 포카입니다.",
-    "팬싸",
-    "rare",
-    25000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=4",
-  ],
-  [
-    81,
-    18,
-    "펜타곤 우석 콘서트",
-    "펜타곤 우석 콘서트 포카입니다.",
-    "콘서트",
-    "super rare",
-    22000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=10",
-  ],
-  [
-    82,
-    2,
-    "NCT 헨드리 특전",
-    "NCT 헨드리 특전 포카입니다.",
-    "특전",
-    "rare",
-    14000,
-    3,
-    3,
-    "https://picsum.photos/360/270?random=12",
-  ],
-  [
-    83,
-    8,
-    "SF9 영빈 특전",
-    "SF9 영빈 특전 포카입니다.",
-    "특전",
-    "super rare",
-    25000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=13",
-  ],
-  [
-    84,
-    6,
-    "케플러 최유진 기타",
-    "케플러 최유진 기타 포카입니다.",
-    "기타",
-    "rare",
-    10000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=2",
-  ],
-  [
-    85,
-    2,
-    "에이티즈 홍중 팬미팅",
-    "에이티즈 홍중 팬미팅 포카입니다.",
-    "팬미팅",
-    "super rare",
-    17000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=3",
-  ],
-  [
-    86,
-    4,
-    "SF9 영빈 콜라보",
-    "SF9 영빈 콜라보 포카입니다.",
-    "콜라보",
-    "rare",
-    21000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=5",
-  ],
-  [
-    87,
-    9,
-    "아스트로 윤산하 팬미팅",
-    "아스트로 윤산하 팬미팅 포카입니다.",
-    "팬미팅",
-    "common",
-    25000,
-    2,
-    0,
-    "https://picsum.photos/360/270?random=8",
-  ],
-  [
-    88,
-    17,
-    "NCT 해찬 팬싸",
-    "NCT 해찬 팬싸 포카입니다.",
-    "팬싸",
-    "super rare",
-    17000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=0",
-  ],
-  [
-    89,
-    20,
-    "CIX 용희 시즌그리팅",
-    "CIX 용희 시즌그리팅 포카입니다.",
-    "시즌그리팅",
-    "rare",
-    28000,
-    3,
-    1,
-    "https://picsum.photos/360/270?random=8",
-  ],
-  [
-    90,
-    20,
-    "소녀시대 효연 기타",
-    "소녀시대 효연 기타 포카입니다.",
-    "기타",
-    "common",
-    23000,
-    2,
-    1,
-    "https://picsum.photos/360/270?random=18",
-  ],
-  [
-    91,
-    4,
-    "스테이씨 세은 콜라보",
-    "스테이씨 세은 콜라보 포카입니다.",
-    "콜라보",
-    "legendary",
-    10000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=14",
-  ],
-  [
-    92,
-    15,
-    "펜타곤 신원 콘서트",
-    "펜타곤 신원 콘서트 포카입니다.",
-    "콘서트",
-    "legendary",
-    29000,
-    3,
-    0,
-    "https://picsum.photos/360/270?random=9",
-  ],
-  [
-    93,
-    8,
-    "세븐틴 승관 앨범",
-    "세븐틴 승관 앨범 포카입니다.",
-    "앨범",
-    "legendary",
-    11000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=8",
-  ],
-  [
-    94,
-    18,
-    "EXO 카이 MD",
-    "EXO 카이 MD 포카입니다.",
-    "MD",
-    "super rare",
-    19000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=3",
-  ],
-  [
-    95,
-    9,
-    "베리베리 호영 팬싸",
-    "베리베리 호영 팬싸 포카입니다.",
-    "팬싸",
-    "rare",
-    23000,
-    3,
-    3,
-    "https://picsum.photos/360/270?random=17",
-  ],
-  [
-    96,
-    10,
-    "NMIXX 지우 콜라보",
-    "NMIXX 지우 콜라보 포카입니다.",
-    "콜라보",
-    "rare",
-    25000,
-    1,
-    0,
-    "https://picsum.photos/360/270?random=16",
-  ],
-  [
-    97,
-    12,
-    "펜타곤 키노 콘서트",
-    "펜타곤 키노 콘서트 포카입니다.",
-    "콘서트",
-    "rare",
-    29000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=16",
-  ],
-  [
-    98,
-    15,
-    "에이티즈 성화 팬미팅",
-    "에이티즈 성화 팬미팅 포카입니다.",
-    "팬미팅",
-    "legendary",
-    26000,
-    3,
-    2,
-    "https://picsum.photos/360/270?random=11",
-  ],
-  [
-    99,
-    7,
-    "이달의 소녀 현진 시즌그리팅",
-    "이달의 소녀 현진 시즌그리팅 포카입니다.",
-    "시즌그리팅",
-    "super rare",
-    26000,
-    3,
-    1,
-    "https://picsum.photos/360/270?random=14",
-  ],
-  [
-    100,
-    14,
-    "NCT 사쿠야 기타",
-    "NCT 사쿠야 기타 포카입니다.",
-    "기타",
-    "rare",
-    10000,
-    1,
-    1,
-    "https://picsum.photos/360/270?random=17",
-  ],
-].map(
-  ([
-    id,
-    userId,
-    name,
-    description,
-    genre,
-    grade,
-    price,
-    totalQuantity,
-    remainingQuantity,
-    imageUrl,
-  ]) => ({
-    id,
-    userId,
-    name,
-    description,
-    genre,
-    grade,
-    price,
-    totalQuantity,
-    remainingQuantity,
-    imageUrl,
-  }),
-);
-
-const gradeMap = {
-  common: Grade.COMMON,
-  rare: Grade.RARE,
-  "super rare": Grade.SUPER_RARE,
-  legendary: Grade.LEGENDARY,
-};
-
-const genreMap = {
-  앨범: Genre.ALBUM,
-  특전: Genre.SPECIAL,
-  팬싸: Genre.FAN_SIGN,
-  시즌그리팅: Genre.SEASON_GREETING,
-  팬미팅: Genre.FAN_MEETING,
-  콘서트: Genre.CONCERT,
-  MD: Genre.MD,
-  콜라보: Genre.COLLABORATION,
-  팬클럽: Genre.FAN_CLUB,
-  기타: Genre.ETC,
-};
-
-function convertPhotoCard(card) {
-  const grade = gradeMap[card.grade];
-  const genre = genreMap[card.genre];
-
-  if (!grade) {
-    throw new Error(
-      `지원하지 않는 카드 등급입니다. cardId=${card.id}, grade=${card.grade}`,
-    );
-  }
-
-  if (!genre) {
-    throw new Error(
-      `지원하지 않는 카드 장르입니다. cardId=${card.id}, genre=${card.genre}`,
-    );
-  }
-
-  return {
-    id: card.id,
-    creatorId: card.userId,
-    name: card.name,
-    grade,
-    genre,
-    minPrice: card.price,
-    description: card.description,
-    imageUrl: card.imageUrl,
-    totalQuantity: card.totalQuantity,
-  };
+async function resetDatabase(tx) {
+  // 외래키를 참조하는 자식 모델부터 삭제합니다.
+  await tx.notification.deleteMany();
+  await tx.exchangeProposal.deleteMany();
+  await tx.transaction.deleteMany();
+  await tx.pointDraw.deleteMany();
+  await tx.marketPosting.deleteMany();
+  await tx.userInventory.deleteMany();
+  await tx.photoCard.deleteMany();
+  await tx.user.deleteMany();
 }
 
-async function resetSequences() {
-  await prisma.$executeRaw`
+async function resetSequences(tx) {
+  await tx.$queryRaw`
     SELECT setval(
       pg_get_serial_sequence('"users"', 'id'),
-      COALESCE(MAX(id), 1),
-      MAX(id) IS NOT NULL
+      MAX(id),
+      true
     )
     FROM "users";
   `;
 
-  await prisma.$executeRaw`
+  await tx.$queryRaw`
     SELECT setval(
       pg_get_serial_sequence('"photo_cards"', 'id'),
-      COALESCE(MAX(id), 1),
-      MAX(id) IS NOT NULL
+      MAX(id),
+      true
     )
     FROM "photo_cards";
   `;
 
-  await prisma.$executeRaw`
+  await tx.$queryRaw`
     SELECT setval(
       pg_get_serial_sequence('"user_inventories"', 'id'),
-      COALESCE(MAX(id), 1),
-      MAX(id) IS NOT NULL
+      MAX(id),
+      true
     )
     FROM "user_inventories";
   `;
 
-  await prisma.$executeRaw`
+  await tx.$queryRaw`
     SELECT setval(
       pg_get_serial_sequence('"market_postings"', 'id'),
-      COALESCE(MAX(id), 1),
-      MAX(id) IS NOT NULL
+      MAX(id),
+      true
     )
     FROM "market_postings";
+  `;
+
+  await tx.$queryRaw`
+    SELECT setval(
+      pg_get_serial_sequence('"point_draws"', 'id'),
+      MAX(id),
+      true
+    )
+    FROM "point_draws";
+  `;
+
+  await tx.$queryRaw`
+    SELECT setval(
+      pg_get_serial_sequence('"transactions"', 'id'),
+      MAX(id),
+      true
+    )
+    FROM "transactions";
+  `;
+
+  await tx.$queryRaw`
+    SELECT setval(
+      pg_get_serial_sequence('"exchange_proposals"', 'id'),
+      MAX(id),
+      true
+    )
+    FROM "exchange_proposals";
+  `;
+
+  await tx.$queryRaw`
+    SELECT setval(
+      pg_get_serial_sequence('"notifications"', 'id'),
+      MAX(id),
+      true
+    )
+    FROM "notifications";
   `;
 }
 
 async function main() {
-  const encryptedUsers = await Promise.all(
-    users.map(async (user) => ({
-      id: user.id,
-      email: user.email,
-      nickname: user.nickname,
-      encryptedPassword: await bcrypt.hash(user.password, 10),
-      provider: AuthProvider.LOCAL,
-      points: user.points,
-    })),
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("프로덕션 환경에서는 seed를 실행할 수 없습니다.");
+  }
+
+  const seededAt = new Date();
+
+  const result = await prisma.$transaction(
+    async (tx) => {
+      await resetDatabase(tx);
+
+      const users = await seedUsers(tx);
+      const photoCards = await seedPhotoCards(tx);
+      const inventories = await seedInventories(tx, photoCards.items);
+      const marketPostings = await seedMarketPostings(tx, photoCards.items);
+      const pointDraws = await seedPointDraws(tx, {
+        users: users.items,
+        seededAt,
+      });
+      const transactions = await seedTransactions(tx, {
+        marketPostings: marketPostings.items,
+        seededAt,
+      });
+      const exchangeProposals = await seedExchangeProposals(tx, {
+        marketPostings: marketPostings.items,
+        inventories: inventories.items,
+        seededAt,
+      });
+      const notifications = await seedNotifications(tx, {
+        transactions: transactions.items,
+        exchangeProposals: exchangeProposals.items,
+        marketPostings: marketPostings.items,
+        seededAt,
+      });
+
+      await resetSequences(tx);
+
+      return {
+        users,
+        photoCards,
+        inventories,
+        marketPostings,
+        pointDraws,
+        transactions,
+        exchangeProposals,
+        notifications,
+      };
+    },
+    {
+      timeout: 30_000,
+    },
   );
 
-  const photoCards = cards.map(convertPhotoCard);
-
-  const userInventories = cards.map((card) => ({
-    id: card.id,
-    userId: card.userId,
-    photoCardId: card.id,
-
-    // 추후 작업하실 떄 seed ownedQuantity 손봐야 하면 수정해주세요!ㅎ
-    ownedQuantity: 0,
-  }));
-
-  const marketPostings = cards.map((card) => ({
-    id: card.id,
-    sellerId: card.userId,
-    userInventoryId: card.id,
-    price: card.price,
-    quantity: card.totalQuantity,
-    remainingQuantity: card.remainingQuantity,
-    title: card.name,
-    description: card.description,
-    status:
-      card.remainingQuantity === 0
-        ? MarketPostingStatus.SOLD
-        : MarketPostingStatus.ON_SALE,
-  }));
-
-  // 외래키를 참조하는 자식 모델부터 삭제합니다.
-  await prisma.notification.deleteMany();
-  await prisma.exchangeProposal.deleteMany();
-  await prisma.transaction.deleteMany();
-  await prisma.pointDraw.deleteMany();
-  await prisma.marketPosting.deleteMany();
-  await prisma.userInventory.deleteMany();
-  await prisma.photoCard.deleteMany();
-  await prisma.user.deleteMany();
-
-  await prisma.user.createMany({
-    data: encryptedUsers,
-  });
-
-  await prisma.photoCard.createMany({
-    data: photoCards,
-  });
-
-  await prisma.userInventory.createMany({
-    data: userInventories,
-  });
-
-  await prisma.marketPosting.createMany({
-    data: marketPostings,
-  });
-
-  await resetSequences();
-
-  console.log(`사용자 ${encryptedUsers.length}명 생성 완료`);
-  console.log(`포토카드 ${photoCards.length}개 생성 완료`);
-  console.log(`사용자 인벤토리 ${userInventories.length}개 생성 완료`);
-  console.log(`판매글 ${marketPostings.length}개 생성 완료`);
+  console.log("시드 데이터 생성 완료");
+  console.log(`User: ${result.users.count}개`);
+  console.log(`PhotoCard: ${result.photoCards.count}개`);
+  console.log(`UserInventory: ${result.inventories.count}개`);
+  console.log(`MarketPosting: ${result.marketPostings.count}개`);
+  console.log(`PointDraw: ${result.pointDraws.count}개`);
+  console.log(`Transaction: ${result.transactions.count}개`);
+  console.log(`ExchangeProposal: ${result.exchangeProposals.count}개`);
+  console.log(`Notification: ${result.notifications.count}개`);
+  console.log("테스트 로그인: user1@example.com / password1");
 }
 
 main()
