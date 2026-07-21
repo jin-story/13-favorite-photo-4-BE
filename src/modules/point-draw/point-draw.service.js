@@ -4,10 +4,7 @@ import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma.js";
 import pointDrawRepository from "./point-draw.repository.js";
 
-const POINT_DRAW_INTERVAL_MINUTES =
-  Number(process.env.POINT_DRAW_INTERVAL_MINUTES) || 60;
-
-const POINT_DRAW_INTERVAL_MS = POINT_DRAW_INTERVAL_MINUTES * 60 * 1000;
+const DEFAULT_POINT_DRAW_INTERVAL_MINUTES = 60;
 
 const POINT_DRAW_REWARDS = [
   { point: 100, weight: 50 },
@@ -17,6 +14,20 @@ const POINT_DRAW_REWARDS = [
 ];
 
 const MAX_TRANSACTION_RETRIES = 3;
+
+function getPointDrawIntervalMinutes() {
+  const intervalMinutes = Number(process.env.POINT_DRAW_INTERVAL_MINUTES);
+
+  if (!Number.isFinite(intervalMinutes) || intervalMinutes <= 0) {
+    return DEFAULT_POINT_DRAW_INTERVAL_MINUTES;
+  }
+
+  return intervalMinutes;
+}
+
+const POINT_DRAW_INTERVAL_MINUTES = getPointDrawIntervalMinutes();
+
+const POINT_DRAW_INTERVAL_MS = POINT_DRAW_INTERVAL_MINUTES * 60 * 1000;
 
 function getRandomPoint() {
   const totalWeight = POINT_DRAW_REWARDS.reduce(
