@@ -1,7 +1,7 @@
 const PURCHASED_INVENTORIES = [
   { id: 101, userId: 1, photoCardId: 1, ownedQuantity: 3 },
-  { id: 102, userId: 2, photoCardId: 2, ownedQuantity: 1 },
-  { id: 103, userId: 3, photoCardId: 3, ownedQuantity: 2 },
+  { id: 102, userId: 1, photoCardId: 2, ownedQuantity: 1 },
+  { id: 103, userId: 1, photoCardId: 3, ownedQuantity: 2 },
   { id: 104, userId: 5, photoCardId: 4, ownedQuantity: 1 },
   { id: 105, userId: 6, photoCardId: 7, ownedQuantity: 2 },
   { id: 106, userId: 7, photoCardId: 9, ownedQuantity: 1 },
@@ -19,10 +19,7 @@ async function seedInventories(tx, photoCards) {
     ownedQuantity: 0,
   }));
 
-  const inventories = [
-    ...sellerInventories,
-    ...PURCHASED_INVENTORIES,
-  ];
+  const inventories = [...sellerInventories, ...PURCHASED_INVENTORIES];
 
   const result = await tx.userInventory.createMany({
     data: inventories,
