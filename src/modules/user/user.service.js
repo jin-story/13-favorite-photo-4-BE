@@ -101,8 +101,8 @@ async function getMe(userId) {
   return filterSensitiveUserData(user);
 }
 
-async function getMyInventories(userId) {
-  return userRepository.findInventoriesByUserId(userId);
+async function getMyInventories(userId, filters) {
+  return userRepository.findInventoriesByUserId(userId, filters);
 }
 
 async function getMyExchangeProposals(userId) {

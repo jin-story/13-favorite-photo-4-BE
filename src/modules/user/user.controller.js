@@ -1,5 +1,8 @@
 import userService from "./user.service.js";
-import { markNotificationAsReadParamsSchema } from "./user.schema.js";
+import {
+  getMyInventoriesQuerySchema,
+  markNotificationAsReadParamsSchema,
+} from "./user.schema.js";
 
 async function getMe(req, res, next) {
   try {
@@ -12,7 +15,12 @@ async function getMe(req, res, next) {
 
 //express 5
 async function getMyInventories(req, res) {
-  const inventories = await userService.getMyInventories(req.user.userId);
+  const filters = getMyInventoriesQuerySchema.parse(req.query);
+
+  const inventories = await userService.getMyInventories(
+    req.user.userId,
+    filters,
+  );
 
   return res.status(200).json(inventories);
 }

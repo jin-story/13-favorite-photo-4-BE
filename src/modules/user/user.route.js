@@ -78,7 +78,6 @@ const userRouter = Router();
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 userRouter.get("/me", protect, userController.getMe);
-
 /**
  * @swagger
  * /users/me/inventories:
@@ -87,9 +86,31 @@ userRouter.get("/me", protect, userController.getMe);
  *     summary: 내 보유 카드 목록 조회
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: keyword
+ *         required: false
+ *         description: 포토카드 이름 검색어
+ *         schema:
+ *           type: string
+ *           minLength: 1
+ *       - in: query
+ *         name: grade
+ *         required: false
+ *         description: 포토카드 등급
+ *         schema:
+ *           type: string
+ *           enum: [COMMON, RARE, SUPER_RARE, LEGENDARY]
+ *       - in: query
+ *         name: genre
+ *         required: false
+ *         description: 포토카드 장르
+ *         schema:
+ *           type: string
+ *           enum: [ALBUM, SPECIAL, FAN_SIGN, SEASON_GREETING, FAN_MEETING, CONCERT, MD, COLLABORATION, FAN_CLUB, ETC]
  *     responses:
  *       '200':
- *         description: 보유 수량이 1개 이상인 카드 목록
+ *         description: 내 보유 카드 목록 조회 성공
  *         content:
  *           application/json:
  *             schema:
@@ -106,6 +127,8 @@ userRouter.get("/me", protect, userController.getMe);
  *                     type: integer
  *                   photoCard:
  *                     $ref: '#/components/schemas/UserPhotoCard'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequest'
  *       '401':
  *         $ref: '#/components/responses/Unauthorized'
  */
