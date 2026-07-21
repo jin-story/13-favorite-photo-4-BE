@@ -28,6 +28,15 @@ Content-Type: application/json
 ### 판매글 상세 조회
 GET {{baseUrl}}/market-postings/{{marketPostingId}}
 
+### 포토카드 구매
+POST {{baseUrl}}/market-postings/{{marketPostingId}}/transactions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "quantity": 1
+}
+
 ### 판매글 수정
 PATCH {{baseUrl}}/market-postings/{{marketPostingId}}
 Authorization: Bearer {{accessToken}}

@@ -7,6 +7,7 @@ import {
   createMarketPostingBodySchema,
   listMarketPostingsQuerySchema,
   marketPostingIdParamsSchema,
+  purchaseMarketPostingBodySchema,
   updateMarketPostingBodySchema,
 } from "./market-posting.schema.js";
 
@@ -179,6 +180,46 @@ const router = Router();
  *           type: string
  *           maxLength: 1000
  *           example: "SUPER_RARE 카드와 교환 희망"
+ *     MarketPostingPurchaseRequest:
+ *       type: object
+ *       required: [quantity]
+ *       additionalProperties: false
+ *       properties:
+ *         quantity:
+ *           type: integer
+ *           minimum: 1
+ *     MarketPostingTransaction:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         marketPostingId:
+ *           type: integer
+ *         buyerId:
+ *           type: integer
+ *         sellerId:
+ *           type: integer
+ *         photoCardId:
+ *           type: integer
+ *         transactionPrice:
+ *           type: integer
+ *           description: 포토카드 1장당 거래 가격
+ *         quantity:
+ *           type: integer
+ *         totalPrice:
+ *           type: integer
+ *           description: 총 결제 포인트
+ *         remainingQuantity:
+ *           type: integer
+ *         status:
+ *           type: string
+ *           enum: [COMPLETED, CANCELED]
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
  *     MarketPostingListResponse:
  *       type: object
  *       properties:
@@ -310,6 +351,53 @@ router.post(
   protect,
   validate(createMarketPostingBodySchema),
   marketPostingController.createMarketPosting,
+);
+
+/**
+ * @swagger
+ * /market-postings/{marketPostingId}/transactions:
+ *   post:
+ *     summary: 포토카드 구매
+ *     description: 판매 중인 포토카드를 구매합니다. 구매자의 포인트를 차감하고 판매자의 포인트와 구매자의 보유 수량을 증가시킵니다.
+ *     tags:
+ *       - Marketplace
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: marketPostingId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/MarketPostingPurchaseRequest"
+ *     responses:
+ *       201:
+ *         description: 포토카드 구매 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/MarketPostingTransaction"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       404:
+ *         description: 판매글을 찾을 수 없음
+ *       409:
+ *         description: 본인 판매글, 포인트 또는 판매 수량 충돌
+ */
+router.post(
+  "/:marketPostingId/transactions",
+  protect,
+  validateRequest({ params: marketPostingIdParamsSchema }),
+  validate(purchaseMarketPostingBodySchema),
+  marketPostingController.purchaseMarketPosting,
 );
 
 /**

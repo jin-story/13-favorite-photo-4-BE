@@ -280,3 +280,149 @@ export async function cancelMarketPosting({ id, sellerId }) {
     }
   });
 }
+
+export async function purchaseMarketPosting({ buyerId, marketPostingId, quantity }) {
+  return prisma.$transaction(async (tx) => {
+    const posting = await tx.marketPosting.findFirst({
+      where: {
+        id: marketPostingId,
+        deletedAt: null,
+      },
+      include: {
+        userInventory: {
+          select: {
+            photoCardId: true,
+          },
+        },
+      },
+    });
+
+    if (!posting) {
+      throw createHttpError("판매글을 찾을 수 없습니다.", 404, "MARKET_POSTING_NOT_FOUND");
+    }
+
+    if (posting.sellerId === buyerId) {
+      throw createHttpError(
+        "본인의 판매글은 구매할 수 없습니다.",
+        409,
+        "CANNOT_PURCHASE_OWN_MARKET_POSTING",
+      );
+    }
+
+    if (posting.status !== "ON_SALE" || posting.remainingQuantity < quantity) {
+      throw createHttpError(
+        "구매 가능한 판매 수량이 부족합니다.",
+        409,
+        "INSUFFICIENT_MARKET_POSTING_QUANTITY",
+      );
+    }
+
+    const totalPrice = posting.price * quantity;
+    const updatedBuyer = await tx.user.updateMany({
+      where: {
+        id: buyerId,
+        points: {
+          gte: totalPrice,
+        },
+      },
+      data: {
+        points: {
+          decrement: totalPrice,
+        },
+      },
+    });
+
+    if (updatedBuyer.count !== 1) {
+      throw createHttpError("보유 포인트가 부족합니다.", 409, "INSUFFICIENT_POINTS");
+    }
+
+    const remainingQuantity = posting.remainingQuantity - quantity;
+    const updatedPosting = await tx.marketPosting.updateMany({
+      where: {
+        id: marketPostingId,
+        status: "ON_SALE",
+        deletedAt: null,
+        remainingQuantity: posting.remainingQuantity,
+      },
+      data: {
+        remainingQuantity,
+        status: remainingQuantity === 0 ? "SOLD" : "ON_SALE",
+      },
+    });
+
+    if (updatedPosting.count !== 1) {
+      throw createHttpError(
+        "판매 수량이 변경되었습니다. 다시 시도해 주세요.",
+        409,
+        "MARKET_POSTING_QUANTITY_CONFLICT",
+      );
+    }
+
+    await tx.user.update({
+      where: { id: posting.sellerId },
+      data: {
+        points: {
+          increment: totalPrice,
+        },
+      },
+    });
+
+    await tx.userInventory.upsert({
+      where: {
+        userId_photoCardId: {
+          userId: buyerId,
+          photoCardId: posting.userInventory.photoCardId,
+        },
+      },
+      update: {
+        ownedQuantity: {
+          increment: quantity,
+        },
+      },
+      create: {
+        userId: buyerId,
+        photoCardId: posting.userInventory.photoCardId,
+        ownedQuantity: quantity,
+      },
+    });
+
+    const transaction = await tx.transaction.create({
+      data: {
+        marketPostingId,
+        buyerId,
+        sellerId: posting.sellerId,
+        photoCardId: posting.userInventory.photoCardId,
+        transactionPrice: posting.price,
+        quantity,
+      },
+    });
+
+    const notifications = [
+      {
+        userId: buyerId,
+        marketPostingId,
+        transactionId: transaction.id,
+        type: "TRANSACTION_COMPLETED",
+        message: "포토카드 구매가 완료되었습니다.",
+      },
+      {
+        userId: posting.sellerId,
+        marketPostingId,
+        transactionId: transaction.id,
+        type: remainingQuantity === 0 ? "MARKET_POSTING_SOLD_OUT" : "MARKET_POSTING_SOLD",
+        message:
+          remainingQuantity === 0
+            ? "판매 중인 포토카드가 품절되었습니다."
+            : "판매 중인 포토카드가 판매되었습니다.",
+      },
+    ];
+
+    await tx.notification.createMany({ data: notifications });
+
+    return {
+      ...transaction,
+      totalPrice,
+      remainingQuantity,
+    };
+  });
+}

@@ -56,3 +56,16 @@ export async function cancelMarketPosting(req, res, next) {
     next(error);
   }
 }
+
+export async function purchaseMarketPosting(req, res, next) {
+  try {
+    const transaction = await marketPostingService.purchaseMarketPosting(
+      req.user.userId,
+      req.params.marketPostingId,
+      req.body.quantity,
+    );
+    res.status(201).json(transaction);
+  } catch (error) {
+    next(error);
+  }
+}

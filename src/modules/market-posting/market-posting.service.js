@@ -142,3 +142,11 @@ export async function cancelMarketPosting(sellerId, marketPostingId) {
     sellerId,
   });
 }
+
+export async function purchaseMarketPosting(buyerId, marketPostingId, quantity) {
+  return marketPostingRepository.purchaseMarketPosting({
+    buyerId,
+    marketPostingId,
+    quantity,
+  });
+}

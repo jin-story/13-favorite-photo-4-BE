@@ -33,6 +33,12 @@ export const createMarketPostingBodySchema = z
   })
   .strict();
 
+export const purchaseMarketPostingBodySchema = z
+  .object({
+    quantity: positiveInt,
+  })
+  .strict();
+
 export const listMarketPostingsQuerySchema = z.object({
   page: positiveInt.default(1),
   limit: positiveInt.max(100).default(10),
