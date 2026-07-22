@@ -1,0 +1,47 @@
+@baseUrl = http://localhost:3001
+@proposerAccessToken = 여기에 proposer access token
+@sellerAccessToken = 여기에 seller access token
+@marketPostingId = 1
+@exchangeProposalId = 1
+@offeredInventoryId = 1
+
+### 교환 제안 생성
+POST {{baseUrl}}/market-postings/{{marketPostingId}}/exchange-proposals
+Authorization: Bearer {{proposerAccessToken}}
+Content-Type: application/json
+
+{
+  "offeredInventoryId": {{offeredInventoryId}},
+  "message": "이 포토카드와 교환을 제안합니다."
+}
+
+### 들어온 교환 제안 목록 조회
+GET {{baseUrl}}/market-postings/{{marketPostingId}}/exchange-proposals
+Authorization: Bearer {{sellerAccessToken}}
+
+### 교환 제안 취소
+PATCH {{baseUrl}}/exchange-proposals/{{exchangeProposalId}}
+Authorization: Bearer {{proposerAccessToken}}
+Content-Type: application/json
+
+{
+  "status": "CANCELED"
+}
+
+### 교환 제안 승인
+PATCH {{baseUrl}}/exchange-proposals/{{exchangeProposalId}}
+Authorization: Bearer {{sellerAccessToken}}
+Content-Type: application/json
+
+{
+  "status": "APPROVED"
+}
+
+### 교환 제안 거절
+PATCH {{baseUrl}}/exchange-proposals/{{exchangeProposalId}}
+Authorization: Bearer {{sellerAccessToken}}
+Content-Type: application/json
+
+{
+  "status": "REJECTED"
+}

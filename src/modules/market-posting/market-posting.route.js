@@ -2,6 +2,8 @@ import { Router } from "express";
 
 import { protect } from "../../middlewares/auth.js";
 import { validate, validateRequest } from "../../middlewares/validate.js";
+import exchangeProposalController from "../exchange-proposal/exchange-proposal.controller.js";
+import { createExchangeProposalBodySchema } from "../exchange-proposal/exchange-proposal.schema.js";
 import * as marketPostingController from "./market-posting.controller.js";
 import {
   createMarketPostingBodySchema,
@@ -398,6 +400,85 @@ router.post(
   validateRequest({ params: marketPostingIdParamsSchema }),
   validate(purchaseMarketPostingBodySchema),
   marketPostingController.purchaseMarketPosting,
+);
+
+/**
+ * @swagger
+ * /market-postings/{marketPostingId}/exchange-proposals:
+ *   post:
+ *     summary: 교환 제안 생성
+ *     tags:
+ *       - ExchangeProposal
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: marketPostingId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/ExchangeProposalCreateRequest"
+ *     responses:
+ *       201:
+ *         description: 교환 제안 생성 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ExchangeProposal"
+ *       401:
+ *         description: 인증 실패
+ *       404:
+ *         description: 판매글 또는 보유 포토카드를 찾을 수 없음
+ *       409:
+ *         description: 교환을 제안할 수 없는 판매글
+ *   get:
+ *     summary: 들어온 교환 제안 목록 조회
+ *     tags:
+ *       - ExchangeProposal
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: marketPostingId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *     responses:
+ *       200:
+ *         description: 교환 제안 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/ExchangeProposal"
+ *       401:
+ *         description: 인증 실패
+ *       403:
+ *         description: 판매자 본인이 아님
+ *       404:
+ *         description: 판매글을 찾을 수 없음
+ */
+router.post(
+  "/:marketPostingId/exchange-proposals",
+  protect,
+  validateRequest({ params: marketPostingIdParamsSchema }),
+  validate(createExchangeProposalBodySchema),
+  exchangeProposalController.createExchangeProposal,
+);
+
+router.get(
+  "/:marketPostingId/exchange-proposals",
+  protect,
+  validateRequest({ params: marketPostingIdParamsSchema }),
+  exchangeProposalController.listExchangeProposals,
 );
 
 /**
