@@ -1,0 +1,20 @@
+@baseUrl = http://localhost:3001
+@accessToken =  여기 access token
+
+### 포인트 뽑기 상태 조회 계속 GET 요청 remainingSeconds 남은 초 수 볼 수 있음
+GET {{baseUrl}}/point-draws
+Authorization: Bearer {{accessToken}}
+
+### 포인트 뽑기 실행
+POST {{baseUrl}}/point-draws
+Authorization: Bearer {{accessToken}}
+
+### 포인트 뽑기 즉시 재실행 409
+POST {{baseUrl}}/point-draws
+Authorization: Bearer {{accessToken}}
+
+### 인증 없이 상태 조회
+GET {{baseUrl}}/point-draws
+
+### 인증 없이 뽑기 실행
+POST {{baseUrl}}/point-draws

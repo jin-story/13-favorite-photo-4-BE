@@ -1,14 +1,14 @@
 const POINT_DRAW_VALUES = [
-  { point: 100, minutesAgo: 120 },
-  { point: 500, minutesAgo: 30 },
-  { point: 1000, minutesAgo: 120 },
-  { point: 100, minutesAgo: 30 },
-  { point: 500, minutesAgo: 120 },
-  { point: 1000, minutesAgo: 30 },
-  { point: 100, minutesAgo: 120 },
-  { point: 500, minutesAgo: 30 },
-  { point: 1000, minutesAgo: 120 },
-  { point: 100, minutesAgo: 30 },
+  { point: 100, minutesAgo: 2 },
+  { point: 500, minutesAgo: 2 },
+  { point: 1000, minutesAgo: 2 },
+  { point: 100, minutesAgo: 2 },
+  { point: 500, minutesAgo: 2 },
+  { point: 1000, minutesAgo: 2 },
+  { point: 100, minutesAgo: 2 },
+  { point: 500, minutesAgo: 2 },
+  { point: 1000, minutesAgo: 2 },
+  { point: 100, minutesAgo: 2 },
 ];
 
 async function seedPointDraws(tx, seedData) {
@@ -19,9 +19,7 @@ async function seedPointDraws(tx, seedData) {
     id: index + 1,
     userId: users[index].id,
     point: pointDraw.point,
-    createdAt: new Date(
-      seededAt.getTime() - pointDraw.minutesAgo * 60 * 1000,
-    ),
+    createdAt: new Date(seededAt.getTime() - pointDraw.minutesAgo * 60 * 1000),
   }));
 
   const result = await tx.pointDraw.createMany({
