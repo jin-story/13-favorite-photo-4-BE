@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:3001
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4NDgxNzI0NSwiZXhwIjoxNzg0ODIwODQ1fQ.FskyJ2ih7WYKzSnGaVHyb5FMEOljNPVInOVdZMcW9dA
+@accessToken = 여기 accessToken
 
 ### 회원가입
 POST {{baseUrl}}/auth/signup
