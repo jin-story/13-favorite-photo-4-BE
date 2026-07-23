@@ -480,15 +480,16 @@ router.get(
   validateRequest({ params: marketPostingIdParamsSchema }),
   exchangeProposalController.listExchangeProposals,
 );
-
 /**
  * @swagger
  * /market-postings/{marketPostingId}:
  *   get:
  *     summary: 판매글 상세 조회
- *     description: 마켓플레이스에 등록된 포토카드 판매글 상세 정보를 조회합니다.
+ *     description: 로그인한 사용자가 판매글 상세 정보를 조회합니다. 응답의 isSeller를 통해 판매자 화면과 다른 사용자 화면을 구분할 수 있습니다.
  *     tags:
  *       - Marketplace
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: marketPostingId
@@ -502,12 +503,21 @@ router.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: "#/components/schemas/MarketPosting"
+ *               $ref: "#/components/schemas/MarketPostingDetail"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
  *       404:
  *         description: 판매글을 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  */
 router.get(
   "/:marketPostingId",
+  protect,
   validateRequest({ params: marketPostingIdParamsSchema }),
   marketPostingController.getMarketPosting,
 );
