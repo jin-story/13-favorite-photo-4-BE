@@ -15,6 +15,7 @@ async function getMe(req, res, next) {
 
 //express 5
 async function getMyInventories(req, res) {
+  //나중에 통합하면 지우기
   const filters = getMyInventoriesQuerySchema.parse(req.query);
 
   const inventories = await userService.getMyInventories(

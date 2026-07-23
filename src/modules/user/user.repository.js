@@ -45,7 +45,29 @@ async function update(id, data) {
   });
 }
 
-async function findInventoriesByUserId(userId, { keyword, grade, genre } = {}) {
+async function findInventoriesForSummaryByUserId(userId) {
+  return await prisma.userInventory.findMany({
+    where: {
+      userId,
+      ownedQuantity: {
+        gt: 0,
+      },
+    },
+    select: {
+      ownedQuantity: true,
+      photoCard: {
+        select: {
+          grade: true,
+        },
+      },
+    },
+  });
+}
+
+async function findInventoriesByUserId(
+  userId,
+  { keyword, grade, genre, cursor, limit = 15 } = {},
+) {
   const photoCardWhere = {};
 
   if (keyword) {
@@ -63,7 +85,7 @@ async function findInventoriesByUserId(userId, { keyword, grade, genre } = {}) {
     photoCardWhere.genre = genre;
   }
 
-  return prisma.userInventory.findMany({
+  const query = {
     where: {
       userId,
       ownedQuantity: {
@@ -93,7 +115,20 @@ async function findInventoriesByUserId(userId, { keyword, grade, genre } = {}) {
         },
       },
     },
-  });
+    orderBy: {
+      id: "desc",
+    },
+    take: limit + 1,
+  };
+
+  if (cursor) {
+    query.cursor = {
+      id: cursor,
+    };
+    query.skip = 1;
+  }
+
+  return prisma.userInventory.findMany(query);
 }
 
 async function findExchangeProposalsByProposerId(userId) {
@@ -246,6 +281,7 @@ export default {
   save,
   update,
   findInventoriesByUserId,
+  findInventoriesForSummaryByUserId,
   findExchangeProposalsByProposerId,
   findMarketPostingsBySellerId,
   findNotificationsByUserId,

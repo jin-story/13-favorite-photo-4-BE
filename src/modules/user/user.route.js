@@ -1,6 +1,11 @@
 import { Router } from "express";
 import userController from "./user.controller.js";
 import { protect } from "../../middlewares/auth.js";
+import { validateRequest } from "../../middlewares/validate.js";
+import {
+  getMyInventoriesQuerySchema,
+  markNotificationAsReadParamsSchema,
+} from "./user.schema.js";
 
 const userRouter = Router();
 
@@ -108,31 +113,142 @@ userRouter.get("/me", protect, userController.getMe);
  *         schema:
  *           type: string
  *           enum: [ALBUM, SPECIAL, FAN_SIGN, SEASON_GREETING, FAN_MEETING, CONCERT, MD, COLLABORATION, FAN_CLUB, ETC]
+ *       - in: query
+ *         name: cursor
+ *         required: false
+ *         description: 이전 응답의 nextCursor
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: 조회할 보유 카드 개수
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 15
+ *       - in: query
+ *         name: includeMeta
+ *         required: false
+ *         description: 사용자와 전체 보유 카드 요약 정보 포함 여부
+ *         schema:
+ *           type: boolean
+ *           default: false
  *     responses:
  *       '200':
  *         description: 내 보유 카드 목록 조회 성공
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 required: [id, photoCardId, ownedQuantity, photoCard]
- *                 properties:
- *                   id:
- *                     type: integer
- *                   photoCardId:
- *                     type: integer
- *                   ownedQuantity:
- *                     type: integer
- *                   photoCard:
- *                     $ref: '#/components/schemas/UserPhotoCard'
+ *               oneOf:
+ *                 - type: object
+ *                   description: includeMeta가 false이거나 생략된 경우
+ *                   required: [list, nextCursor, hasNextPage]
+ *                   properties:
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         required: [id, photoCardId, ownedQuantity, photoCard]
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           photoCardId:
+ *                             type: integer
+ *                           ownedQuantity:
+ *                             type: integer
+ *                           photoCard:
+ *                             $ref: '#/components/schemas/UserPhotoCard'
+ *                     nextCursor:
+ *                       type: [integer, "null"]
+ *                     hasNextPage:
+ *                       type: boolean
+ *                 - type: object
+ *                   description: includeMeta가 true인 경우
+ *                   required: [user, summary, list, nextCursor, hasNextPage]
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       required: [id, nickname]
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                         nickname:
+ *                           type: string
+ *                     summary:
+ *                       type: object
+ *                       required: [totalQuantity, gradeCounts]
+ *                       properties:
+ *                         totalQuantity:
+ *                           type: integer
+ *                         gradeCounts:
+ *                           type: object
+ *                           required: [COMMON, RARE, SUPER_RARE, LEGENDARY]
+ *                           properties:
+ *                             COMMON:
+ *                               type: integer
+ *                             RARE:
+ *                               type: integer
+ *                             SUPER_RARE:
+ *                               type: integer
+ *                             LEGENDARY:
+ *                               type: integer
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         required: [id, photoCardId, ownedQuantity, photoCard]
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           photoCardId:
+ *                             type: integer
+ *                           ownedQuantity:
+ *                             type: integer
+ *                           photoCard:
+ *                             $ref: '#/components/schemas/UserPhotoCard'
+ *                     nextCursor:
+ *                       type: [integer, "null"]
+ *                     hasNextPage:
+ *                       type: boolean
  *       '400':
- *         $ref: '#/components/responses/BadRequest'
+ *         description: 쿼리 파라미터가 올바르지 않습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               path: /users/me/inventories
+ *               method: GET
+ *               status: 400
+ *               code: INVALID_REQUEST
+ *               message: 커서는 양의 정수여야 합니다.
+ *               date: "2026-07-24T00:00:00.000Z"
  *       '401':
  *         $ref: '#/components/responses/Unauthorized'
+ *       '404':
+ *         description: 인증된 사용자를 찾을 수 없습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               path: /users/me/inventories
+ *               method: GET
+ *               status: 404
+ *               code: USER_NOT_FOUND
+ *               message: 존재하지 않는 유저입니다.
+ *               date: "2026-07-24T00:00:00.000Z"
  */
-userRouter.get("/me/inventories", protect, userController.getMyInventories);
+userRouter.get(
+  "/me/inventories",
+  protect,
+  validateRequest({
+    query: getMyInventoriesQuerySchema,
+  }),
+  userController.getMyInventories,
+);
 
 /**
  * @swagger
@@ -300,6 +416,9 @@ userRouter.get("/me/notifications", protect, userController.getMyNotifications);
 userRouter.patch(
   "/me/notifications/:notificationId",
   protect,
+  validateRequest({
+    params: markNotificationAsReadParamsSchema,
+  }),
   userController.markNotificationAsRead,
 );
 
