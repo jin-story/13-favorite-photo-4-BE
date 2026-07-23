@@ -408,7 +408,7 @@ router.post(
  *   post:
  *     summary: 교환 제안 생성
  *     tags:
- *       - ExchangeProposal
+ *       - Marketplace
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -440,7 +440,7 @@ router.post(
  *   get:
  *     summary: 들어온 교환 제안 목록 조회
  *     tags:
- *       - ExchangeProposal
+ *       - Marketplace
  *     security:
  *       - bearerAuth: []
  *     parameters:
