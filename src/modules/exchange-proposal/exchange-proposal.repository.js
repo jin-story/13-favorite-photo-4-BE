@@ -1,5 +1,31 @@
 import prisma from "../../config/prisma.js";
 
+const exchangeProposalSummarySelect = {
+  id: true,
+  message: true,
+  status: true,
+  createdAt: true,
+  offeredInventory: {
+    select: {
+      photoCard: {
+        select: {
+          id: true,
+          name: true,
+          grade: true,
+          genre: true,
+          minPrice: true,
+          imageUrl: true,
+          creator: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 async function findMarketPostingById(marketPostingId) {
   return prisma.marketPosting.findFirst({
     where: {
@@ -38,31 +64,7 @@ async function createExchangeProposal({ proposerId, marketPostingId, data }) {
       offeredInventoryId: data.offeredInventoryId,
       message: data.message,
     },
-    select: {
-      id: true,
-      message: true,
-      status: true,
-      createdAt: true,
-      offeredInventory: {
-        select: {
-          photoCard: {
-            select: {
-              id: true,
-              name: true,
-              grade: true,
-              genre: true,
-              minPrice: true,
-              imageUrl: true,
-              creator: {
-                select: {
-                  nickname: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+    select: exchangeProposalSummarySelect,
   });
 }
 
@@ -71,31 +73,7 @@ async function findExchangeProposalsByMarketPostingId(marketPostingId) {
     where: {
       marketPostingId,
     },
-    select: {
-      id: true,
-      message: true,
-      status: true,
-      createdAt: true,
-      offeredInventory: {
-        select: {
-          photoCard: {
-            select: {
-              id: true,
-              name: true,
-              grade: true,
-              genre: true,
-              minPrice: true,
-              imageUrl: true,
-              creator: {
-                select: {
-                  nickname: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+    select: exchangeProposalSummarySelect,
     orderBy: {
       createdAt: "desc",
     },
@@ -158,31 +136,7 @@ async function updateExchangeProposalStatus(exchangeProposalId, status) {
     where: {
       id: exchangeProposalId,
     },
-    select: {
-      id: true,
-      message: true,
-      status: true,
-      createdAt: true,
-      offeredInventory: {
-        select: {
-          photoCard: {
-            select: {
-              id: true,
-              name: true,
-              grade: true,
-              genre: true,
-              minPrice: true,
-              imageUrl: true,
-              creator: {
-                select: {
-                  nickname: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+    select: exchangeProposalSummarySelect,
   });
 }
 
@@ -290,31 +244,7 @@ async function approveExchangeProposal(proposal) {
       where: {
         id: proposal.id,
       },
-      select: {
-        id: true,
-        message: true,
-        status: true,
-        createdAt: true,
-        offeredInventory: {
-          select: {
-            photoCard: {
-              select: {
-                id: true,
-                name: true,
-                grade: true,
-                genre: true,
-                minPrice: true,
-                imageUrl: true,
-                creator: {
-                  select: {
-                    nickname: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      select: exchangeProposalSummarySelect,
     });
   });
 }

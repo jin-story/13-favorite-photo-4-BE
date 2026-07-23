@@ -82,6 +82,16 @@ async function updateExchangeProposal(userId, exchangeProposalId, status) {
     throw error;
   }
 
+  const isProposer = proposal.proposerId === userId;
+  const isSeller = proposal.marketPosting.sellerId === userId;
+
+  if (!isProposer && !isSeller) {
+    const error = new Error("교환 제안 상태를 변경할 권한이 없습니다.");
+    error.status = 403;
+    error.code = "FORBIDDEN_EXCHANGE_PROPOSAL";
+    throw error;
+  }
+
   if (proposal.status !== "PENDING") {
     const error = new Error("대기 중인 교환 제안만 상태를 변경할 수 있습니다.");
     error.status = 409;
@@ -89,7 +99,7 @@ async function updateExchangeProposal(userId, exchangeProposalId, status) {
     throw error;
   }
 
-  if (status === "CANCELED" && proposal.proposerId !== userId) {
+  if (status === "CANCELED" && !isProposer) {
     const error = new Error("제안자 본인만 교환 제안을 취소할 수 있습니다.");
     error.status = 403;
     error.code = "FORBIDDEN_EXCHANGE_PROPOSAL";
@@ -98,7 +108,7 @@ async function updateExchangeProposal(userId, exchangeProposalId, status) {
 
   if (
     (status === "APPROVED" || status === "REJECTED") &&
-    proposal.marketPosting.sellerId !== userId
+    !isSeller
   ) {
     const error = new Error("판매자 본인만 교환 제안을 승인하거나 거절할 수 있습니다.");
     error.status = 403;
