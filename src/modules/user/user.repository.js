@@ -30,6 +30,8 @@ async function save(user) {
       email: user.email,
       nickname: user.nickname,
       encryptedPassword: user.encryptedPassword,
+      provider: user.provider,
+      providerId: user.providerId,
     },
   });
 }

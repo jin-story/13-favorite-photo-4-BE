@@ -148,6 +148,25 @@ async function markNotificationAsRead(userId, notificationId) {
   return userRepository.updateNotificationAsRead(notificationId);
 }
 
+async function oauthCreateOrUpdate(provider, providerId, email, name) {
+  const isExistUser = await userRepository.findByEmail(email);
+  if (isExistUser) {
+    const updatedUser = await userRepository.update(isExistUser.id, {
+      provider,
+      providerId,
+    });
+    return filterSensitiveUserData(updatedUser);
+  }
+
+  const createdUser = await userRepository.save({
+    email,
+    nickname: name,
+    provider,
+    providerId,
+  });
+  return filterSensitiveUserData(createdUser);
+}
+
 export default {
   createToken,
   refreshToken,
@@ -161,4 +180,5 @@ export default {
   getMyMarketPostings,
   getMyNotifications,
   markNotificationAsRead,
+  oauthCreateOrUpdate,
 };

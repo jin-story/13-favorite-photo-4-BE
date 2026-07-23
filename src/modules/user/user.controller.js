@@ -1,8 +1,8 @@
-import userService from "./user.service.js";
 import {
   getMyInventoriesQuerySchema,
   markNotificationAsReadParamsSchema,
 } from "./user.schema.js";
+import userService from "./user.service.js";
 
 async function getMe(req, res, next) {
   try {

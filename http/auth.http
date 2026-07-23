@@ -52,3 +52,14 @@ Content-Type: application/json
   "email": "user2@example.com",
   "encryptedPassword": "password2"
 }
+
+
+### 구글 로그인 (REST Client로 실행 불가)
+# 브라우저 주소창에 아래 URL을 직접 입력해서 테스트
+#google 
+# http://localhost:3001/auth/google
+#테스트 시 env 파일에 GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL
+#필요함 팀원: "송현규" 에게 요청하기!
+# 구글 로그인 완료하면 자동으로 /auth/google/callback으로 리다이렉트되고
+#테이블에 추가됨
+# { "user": ..., "accessToken": ... } 응답 + refreshToken 쿠키가 내려옴
