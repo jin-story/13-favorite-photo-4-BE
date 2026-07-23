@@ -2,7 +2,12 @@ import { z } from "zod";
 
 const positiveInt = z.coerce.number().int().positive();
 
-export const gradeSchema = z.enum(["COMMON", "RARE", "SUPER_RARE", "LEGENDARY"]);
+export const gradeSchema = z.enum([
+  "COMMON",
+  "RARE",
+  "SUPER_RARE",
+  "LEGENDARY",
+]);
 
 export const genreSchema = z.enum([
   "ALBUM",
@@ -24,33 +29,8 @@ export const createPhotoCardBodySchema = z
     genre: genreSchema,
     minPrice: positiveInt,
     description: z.string().trim().min(1).max(1000),
-    imageUrl: z.string().trim().url(),
-    totalQuantity: positiveInt,
+    totalQuantity: positiveInt.max(10, {
+      error: "총 발행량은 최대 10장까지 입력할 수 있습니다.",
+    }),
   })
   .strict();
-
-export const photoCardIdParamsSchema = z.object({
-  photoCardId: positiveInt,
-});
-
-export const listPhotoCardsQuerySchema = z.object({
-  page: positiveInt.default(1),
-  limit: positiveInt.max(100).default(10),
-  keyword: z.string().trim().optional(),
-  grade: gradeSchema.optional(),
-  genre: genreSchema.optional(),
-  soldOut: z
-    .enum(["true", "false"])
-    .transform((value) => value === "true")
-    .optional(),
-  sort: z.enum(["recent", "oldest", "price_asc", "price_desc"]).default("recent"),
-});
-
-export const listMyPhotoCardsQuerySchema = z.object({
-  page: positiveInt.default(1),
-  limit: positiveInt.max(100).default(10),
-  keyword: z.string().trim().optional(),
-  grade: gradeSchema.optional(),
-  genre: genreSchema.optional(),
-  sort: z.enum(["recent", "oldest", "price_asc", "price_desc"]).default("recent"),
-});

@@ -1,0 +1,140 @@
+@baseUrl = http://localhost:3001
+@accessToken = 여기에 로그인 후 발급받은 access token
+
+### 포토카드 생성 성공
+POST {{baseUrl}}/photo-cards
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=PhotoCardBoundary
+
+--PhotoCardBoundary
+Content-Disposition: form-data; name="name"
+
+테스트 포토카드
+--PhotoCardBoundary
+Content-Disposition: form-data; name="grade"
+
+RARE
+--PhotoCardBoundary
+Content-Disposition: form-data; name="genre"
+
+SPECIAL
+--PhotoCardBoundary
+Content-Disposition: form-data; name="minPrice"
+
+1000
+--PhotoCardBoundary
+Content-Disposition: form-data; name="description"
+
+포토카드 생성 API 테스트입니다.
+--PhotoCardBoundary
+Content-Disposition: form-data; name="totalQuantity"
+
+10
+--PhotoCardBoundary
+Content-Disposition: form-data; name="image"; filename="photo-card.png"
+Content-Type: image/png
+
+< ./test-images/photo-card.png
+--PhotoCardBoundary--
+
+### 인증 없이 포토카드 생성
+POST {{baseUrl}}/photo-cards
+Content-Type: multipart/form-data; boundary=PhotoCardBoundary
+
+--PhotoCardBoundary
+Content-Disposition: form-data; name="name"
+
+인증 없는 테스트 카드
+--PhotoCardBoundary
+Content-Disposition: form-data; name="grade"
+
+RARE
+--PhotoCardBoundary
+Content-Disposition: form-data; name="genre"
+
+SPECIAL
+--PhotoCardBoundary
+Content-Disposition: form-data; name="minPrice"
+
+1000
+--PhotoCardBoundary
+Content-Disposition: form-data; name="description"
+
+인증 실패 테스트입니다.
+--PhotoCardBoundary
+Content-Disposition: form-data; name="totalQuantity"
+
+10
+--PhotoCardBoundary
+Content-Disposition: form-data; name="image"; filename="photo-card.png"
+Content-Type: image/png
+
+< ./test-images/photo-card.png
+--PhotoCardBoundary--
+
+### 이미지 없이 포토카드 생성
+POST {{baseUrl}}/photo-cards
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=PhotoCardBoundary
+
+--PhotoCardBoundary
+Content-Disposition: form-data; name="name"
+
+이미지 없는 테스트 카드
+--PhotoCardBoundary
+Content-Disposition: form-data; name="grade"
+
+RARE
+--PhotoCardBoundary
+Content-Disposition: form-data; name="genre"
+
+SPECIAL
+--PhotoCardBoundary
+Content-Disposition: form-data; name="minPrice"
+
+1000
+--PhotoCardBoundary
+Content-Disposition: form-data; name="description"
+
+이미지 누락 테스트입니다.
+--PhotoCardBoundary
+Content-Disposition: form-data; name="totalQuantity"
+
+10
+--PhotoCardBoundary--
+
+### 총 발행량 10장 초과
+POST {{baseUrl}}/photo-cards
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=PhotoCardBoundary
+
+--PhotoCardBoundary
+Content-Disposition: form-data; name="name"
+
+발행량 초과 테스트 카드
+--PhotoCardBoundary
+Content-Disposition: form-data; name="grade"
+
+RARE
+--PhotoCardBoundary
+Content-Disposition: form-data; name="genre"
+
+SPECIAL
+--PhotoCardBoundary
+Content-Disposition: form-data; name="minPrice"
+
+1000
+--PhotoCardBoundary
+Content-Disposition: form-data; name="description"
+
+총 발행량 제한 테스트입니다.
+--PhotoCardBoundary
+Content-Disposition: form-data; name="totalQuantity"
+
+11
+--PhotoCardBoundary
+Content-Disposition: form-data; name="image"; filename="photo-card.png"
+Content-Type: image/png
+
+< ./test-images/photo-card.png
+--PhotoCardBoundary--

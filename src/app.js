@@ -1,4 +1,5 @@
 import express from "express";
+
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
@@ -7,6 +8,7 @@ import swaggerSpec from "./config/swagger.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import passport from "./middlewares/auth.js";
+import { UPLOAD_DIRECTORY } from "./middlewares/imageUpload.js";
 import router from "./routes/index.js";
 
 const app = express();
@@ -23,6 +25,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
+
+app.use("/images", express.static(UPLOAD_DIRECTORY));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

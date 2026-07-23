@@ -113,30 +113,6 @@ function verifyOrigin(req, res, next) {
   next();
 }
 
-/**
- * @swagger
- * /auth/me:
- *   get:
- *     tags: [Auth]
- *     summary: 내 정보 조회
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       '200':
- *         description: 현재 로그인한 사용자 정보
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       '401':
- *         $ref: '#/components/responses/Unauthorized'
- *       '404':
- *         description: 사용자를 찾을 수 없습니다.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
 authRouter.get("/me", protect, authController.getMe);
 
 /**
