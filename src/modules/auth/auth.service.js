@@ -17,6 +17,13 @@ async function login(email, encryptedPassword) {
   return { user, accessToken, refreshToken };
 }
 
+async function oauthLogin(user) {
+  const accessToken = userService.createToken(user);
+  const refreshToken = userService.createToken(user, "refreshToken");
+  await userService.saveRefreshToken(user.id, refreshToken);
+  return { user, accessToken, refreshToken };
+}
+
 async function refresh(refreshToken) {
   let payload;
   try {
@@ -39,4 +46,4 @@ async function logout(userId) {
   await userService.updateUser(userId, { refreshToken: null });
 }
 
-export default { signup, login, refresh, logout };
+export default { signup, login, oauthLogin, refresh, logout };

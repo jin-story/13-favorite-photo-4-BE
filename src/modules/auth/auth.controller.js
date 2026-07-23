@@ -46,6 +46,19 @@ async function login(req, res, next) {
   }
 }
 
+async function googleCallback(req, res, next) {
+  try {
+    const { user, accessToken, refreshToken } = await authService.oauthLogin(
+      req.user,
+    );
+
+    res.cookie("refreshToken", refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
+    res.json({ user, accessToken });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function getMe(req, res, next) {
   try {
     const user = await userService.getMe(req.user.userId);
@@ -81,6 +94,7 @@ async function logout(req, res, next) {
 export default {
   signup,
   login,
+  googleCallback,
   getMe,
   refreshToken,
   logout,

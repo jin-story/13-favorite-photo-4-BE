@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authController from "./auth.controller.js";
-import { protect } from "../../middlewares/auth.js";
+import passport, { protect } from "../../middlewares/auth.js";
 import { validate } from "../../middlewares/validate.js";
 import { userCreateSchema, loginSchema } from "./auth.schema.js";
 
@@ -284,5 +284,56 @@ authRouter.post("/refresh-token", verifyOrigin, authController.refreshToken);
  *         $ref: '#/components/responses/Unauthorized'
  */
 authRouter.post("/logout", protect, authController.logout);
+
+/**
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     tags: [Auth]
+ *     summary: 구글 로그인 시작
+ *     description: 구글 로그인 동의 화면으로 리다이렉트합니다.
+ *     responses:
+ *       '302':
+ *         description: 구글 로그인 페이지로 리다이렉트
+ */
+authRouter.get(
+  "/google",
+  passport.authenticate("google", {
+    session: false,
+    scope: ["profile", "email"],
+  }),
+);
+
+/**
+ * @swagger
+ * /auth/google/callback:
+ *   get:
+ *     tags: [Auth]
+ *     summary: 구글 로그인 콜백
+ *     description: 구글이 로그인 처리 후 호출하는 콜백 URL입니다. 클라이언트가 직접 호출하지 않습니다.
+ *     parameters:
+ *       - in: query
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: 로그인 성공
+ *         headers:
+ *           Set-Cookie:
+ *             description: HttpOnly refreshToken 쿠키
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ */
+authRouter.get(
+  "/google/callback",
+  passport.authenticate("google", { session: false, failureRedirect: "/" }),
+  authController.googleCallback,
+);
 
 export default authRouter;
