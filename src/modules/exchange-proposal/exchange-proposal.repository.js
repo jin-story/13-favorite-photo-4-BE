@@ -137,14 +137,22 @@ async function findExchangeProposalById(exchangeProposalId) {
 }
 
 async function updateExchangeProposalStatus(exchangeProposalId, status) {
-  await prisma.exchangeProposal.update({
+  const updatedProposal = await prisma.exchangeProposal.updateMany({
     where: {
       id: exchangeProposalId,
+      status: "PENDING",
     },
     data: {
       status,
     },
   });
+
+  if (updatedProposal.count !== 1) {
+    const error = new Error("교환 제안 상태가 변경되었습니다. 다시 시도해 주세요.");
+    error.status = 409;
+    error.code = "EXCHANGE_PROPOSAL_STATUS_CONFLICT";
+    throw error;
+  }
 
   return prisma.exchangeProposal.findUnique({
     where: {
