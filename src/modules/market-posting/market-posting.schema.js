@@ -40,11 +40,15 @@ export const purchaseMarketPostingBodySchema = z
   .strict();
 
 export const listMarketPostingsQuerySchema = z.object({
-  page: positiveInt.default(1),
+  cursor: z.string().trim().min(1).optional(),
   limit: positiveInt.max(100).default(10),
   keyword: z.string().trim().optional(),
   grade: gradeSchema.optional(),
   genre: genreSchema.optional(),
+  soldOut: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional(),
   sort: z.enum(["recent", "oldest", "price_asc", "price_desc"]).default("recent"),
 });
 

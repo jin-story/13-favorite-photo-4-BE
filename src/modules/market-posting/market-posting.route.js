@@ -224,26 +224,18 @@ const router = Router();
  *           format: date-time
  *     MarketPostingListResponse:
  *       type: object
+ *       required: [list, nextCursor, hasNextPage]
  *       properties:
  *         list:
  *           type: array
  *           items:
  *             $ref: "#/components/schemas/MarketPosting"
- *         pagination:
- *           type: object
- *           properties:
- *             page:
- *               type: integer
- *               example: 1
- *             limit:
- *               type: integer
- *               example: 10
- *             total:
- *               type: integer
- *               example: 25
- *             totalPages:
- *               type: integer
- *               example: 3
+ *         nextCursor:
+ *           type: [string, "null"]
+ *           description: 다음 페이지 조회에 사용할 불투명 커서. 다음 페이지가 없으면 null입니다.
+ *         hasNextPage:
+ *           type: boolean
+ *           example: true
  */
 
 /**
@@ -251,16 +243,15 @@ const router = Router();
  * /market-postings:
  *   get:
  *     summary: 전체 판매글 목록 조회
- *     description: 마켓플레이스에 등록된 판매 중인 포토카드 목록을 조회합니다. 검색, 등급/장르 필터, 최신/오래된 순 및 낮은/높은 가격 순 정렬이 가능합니다.
+ *     description: 마켓플레이스 판매글을 커서 방식으로 조회합니다. 검색, 등급/장르/품절 여부 필터, 최신/오래된 순 및 낮은/높은 가격 순 정렬이 가능합니다.
  *     tags:
  *       - Marketplace
  *     parameters:
  *       - in: query
- *         name: page
+ *         name: cursor
  *         schema:
- *           type: integer
- *           minimum: 1
- *           default: 1
+ *           type: string
+ *         description: 이전 응답의 nextCursor. 정렬 조건을 바꾸면 기존 커서를 재사용할 수 없습니다.
  *       - in: query
  *         name: limit
  *         schema:
@@ -293,6 +284,12 @@ const router = Router();
  *             - FAN_CLUB
  *             - ETC
  *       - in: query
+ *         name: soldOut
+ *         schema:
+ *           type: string
+ *           enum: ["true", "false"]
+ *         description: true이면 품절, false이면 판매 가능한 판매글만 조회합니다. 미전달 시 모두 조회합니다.
+ *       - in: query
  *         name: sort
  *         schema:
  *           type: string
@@ -305,6 +302,8 @@ const router = Router();
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/MarketPostingListResponse"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
  */
 router.get(
   "/",
