@@ -41,6 +41,13 @@ function toMarketPostingResponse(posting) {
   };
 }
 
+function toMarketPostingDetailResponse(posting, userId) {
+  return {
+    ...toMarketPostingResponse(posting),
+    isSeller: posting.sellerId === userId,
+  };
+}
+
 function buildMarketPostingWhere(query) {
   const photoCardWhere = {
     ...(query.grade ? { grade: query.grade } : {}),
@@ -85,10 +92,15 @@ function buildOrderBy(sort) {
 }
 
 async function getExistingMarketPosting(marketPostingId) {
-  const posting = await marketPostingRepository.findMarketPostingById(marketPostingId);
+  const posting =
+    await marketPostingRepository.findMarketPostingById(marketPostingId);
 
   if (!posting) {
-    throw createHttpError("판매글을 찾을 수 없습니다.", 404, "MARKET_POSTING_NOT_FOUND");
+    throw createHttpError(
+      "판매글을 찾을 수 없습니다.",
+      404,
+      "MARKET_POSTING_NOT_FOUND",
+    );
   }
 
   return posting;
@@ -121,9 +133,9 @@ export async function listMarketPostings(query) {
   };
 }
 
-export async function getMarketPosting(marketPostingId) {
+export async function getMarketPosting(userId, marketPostingId) {
   const posting = await getExistingMarketPosting(marketPostingId);
-  return toMarketPostingResponse(posting);
+  return toMarketPostingDetailResponse(posting, userId);
 }
 
 export async function updateMarketPosting(sellerId, marketPostingId, payload) {
@@ -143,7 +155,11 @@ export async function cancelMarketPosting(sellerId, marketPostingId) {
   });
 }
 
-export async function purchaseMarketPosting(buyerId, marketPostingId, quantity) {
+export async function purchaseMarketPosting(
+  buyerId,
+  marketPostingId,
+  quantity,
+) {
   return marketPostingRepository.purchaseMarketPosting({
     buyerId,
     marketPostingId,

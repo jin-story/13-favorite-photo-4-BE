@@ -101,8 +101,74 @@ async function getMe(userId) {
   return filterSensitiveUserData(user);
 }
 
+function createInventorySummary(inventories) {
+  return inventories.reduce(
+    (summary, inventory) => {
+      const quantity = inventory.ownedQuantity;
+      const grade = inventory.photoCard.grade;
+
+      summary.totalQuantity += quantity;
+      summary.gradeCounts[grade] += quantity;
+
+      return summary;
+    },
+    {
+      totalQuantity: 0,
+      gradeCounts: {
+        COMMON: 0,
+        RARE: 0,
+        SUPER_RARE: 0,
+        LEGENDARY: 0,
+      },
+    },
+  );
+}
+
 async function getMyInventories(userId, filters) {
-  return userRepository.findInventoriesByUserId(userId, filters);
+  const { includeMeta, ...inventoryFilters } = filters;
+
+  const [user, inventories, summaryInventories] = await Promise.all([
+    userRepository.findById(userId),
+    userRepository.findInventoriesByUserId(userId, inventoryFilters),
+    includeMeta ? userRepository.findInventoriesForSummaryByUserId(userId) : [],
+  ]);
+
+  if (!user) {
+    const error = new Error("존재하지 않는 유저입니다.");
+    error.status = 404;
+    error.code = "USER_NOT_FOUND";
+    throw error;
+  }
+
+  const { limit } = inventoryFilters;
+  const hasNextPage = inventories.length > limit;
+
+  if (hasNextPage) {
+    inventories.pop();
+  }
+
+  const nextCursor = hasNextPage
+    ? inventories[inventories.length - 1].id
+    : null;
+
+  const result = {
+    list: inventories,
+    nextCursor,
+    hasNextPage,
+  };
+
+  if (!includeMeta) {
+    return result;
+  }
+
+  return {
+    user: {
+      id: user.id,
+      nickname: user.nickname,
+    },
+    summary: createInventorySummary(summaryInventories),
+    ...result,
+  };
 }
 
 async function getMyExchangeProposals(userId) {

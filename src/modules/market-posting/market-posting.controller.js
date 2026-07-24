@@ -24,6 +24,7 @@ export async function listMarketPostings(req, res, next) {
 export async function getMarketPosting(req, res, next) {
   try {
     const posting = await marketPostingService.getMarketPosting(
+      req.user.userId,
       req.params.marketPostingId,
     );
     res.status(200).json(posting);
