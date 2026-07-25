@@ -24,15 +24,6 @@ const marketPostingInclude = {
   },
 };
 
-function buildPagination({ page, limit, total }) {
-  return {
-    page,
-    limit,
-    total,
-    totalPages: Math.ceil(total / limit),
-  };
-}
-
 export async function createMarketPosting({ sellerId, data }) {
   return prisma.$transaction(async (tx) => {
     const inventory = await tx.userInventory.findFirst({
@@ -91,22 +82,25 @@ export async function createMarketPosting({ sellerId, data }) {
   });
 }
 
-export async function listMarketPostings({ where, orderBy, skip, take, page, limit }) {
-  const [list, total] = await Promise.all([
-    prisma.marketPosting.findMany({
-      where,
-      orderBy,
-      skip,
-      take,
-      include: marketPostingInclude,
-    }),
-    prisma.marketPosting.count({ where }),
-  ]);
+export async function listMarketPostings({ where, orderBy, cursor, sort, limit }) {
+  const isPriceSort = sort.startsWith("price");
+  const field = isPriceSort ? "price" : "createdAt";
+  const direction = sort === "oldest" || sort === "price_asc" ? "gt" : "lt";
+  const cursorWhere = cursor
+    ? {
+        OR: [
+          { [field]: { [direction]: cursor.value } },
+          { [field]: cursor.value, id: { [direction]: cursor.id } },
+        ],
+      }
+    : {};
 
-  return {
-    list,
-    pagination: buildPagination({ page, limit, total }),
-  };
+  return prisma.marketPosting.findMany({
+    where: { AND: [where, cursorWhere] },
+    orderBy,
+    take: limit + 1,
+    include: marketPostingInclude,
+  });
 }
 
 export async function findMarketPostingById(id) {

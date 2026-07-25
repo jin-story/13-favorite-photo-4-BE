@@ -56,7 +56,9 @@ function buildMarketPostingWhere(query) {
 
   return {
     deletedAt: null,
-    status: "ON_SALE",
+    ...(query.soldOut !== undefined
+      ? { remainingQuantity: query.soldOut ? 0 : { gt: 0 } }
+      : {}),
     ...(query.keyword
       ? {
           OR: [
@@ -85,10 +87,38 @@ function buildMarketPostingWhere(query) {
 }
 
 function buildOrderBy(sort) {
-  if (sort === "oldest") return { createdAt: "asc" };
-  if (sort === "price_asc") return { price: "asc" };
-  if (sort === "price_desc") return { price: "desc" };
-  return { createdAt: "desc" };
+  if (sort === "oldest") return [{ createdAt: "asc" }, { id: "asc" }];
+  if (sort === "price_asc") return [{ price: "asc" }, { id: "asc" }];
+  if (sort === "price_desc") return [{ price: "desc" }, { id: "desc" }];
+  return [{ createdAt: "desc" }, { id: "desc" }];
+}
+
+function encodeCursor(posting, sort) {
+  const field = sort.startsWith("price") ? "price" : "createdAt";
+  const value = field === "createdAt" ? posting.createdAt.toISOString() : posting.price;
+
+  return Buffer.from(JSON.stringify({ sort, value, id: posting.id })).toString("base64url");
+}
+
+function decodeCursor(cursor, sort) {
+  if (!cursor) return undefined;
+
+  try {
+    const decoded = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));
+    const isPriceSort = sort.startsWith("price");
+    const value = isPriceSort ? decoded.value : new Date(decoded.value);
+    const hasValidValue = isPriceSort
+      ? Number.isInteger(value) && value >= 0
+      : !Number.isNaN(value.getTime());
+
+    if (decoded.sort !== sort || !Number.isInteger(decoded.id) || decoded.id < 1 || !hasValidValue) {
+      throw new Error("Invalid cursor");
+    }
+
+    return { value, id: decoded.id };
+  } catch {
+    throw createHttpError("유효하지 않은 커서입니다.", 400, "INVALID_CURSOR");
+  }
 }
 
 async function getExistingMarketPosting(marketPostingId) {
@@ -116,20 +146,25 @@ export async function createMarketPosting(sellerId, payload) {
 }
 
 export async function listMarketPostings(query) {
-  const page = query.page;
   const limit = query.limit;
+  const cursor = decodeCursor(query.cursor, query.sort);
   const result = await marketPostingRepository.listMarketPostings({
     where: buildMarketPostingWhere(query),
     orderBy: buildOrderBy(query.sort),
-    skip: (page - 1) * limit,
-    take: limit,
-    page,
+    cursor,
+    sort: query.sort,
     limit,
   });
 
+  const hasNextPage = result.length > limit;
+  const pageItems = hasNextPage ? result.slice(0, limit) : result;
+
   return {
-    list: result.list.map(toMarketPostingResponse),
-    pagination: result.pagination,
+    list: pageItems.map(toMarketPostingResponse),
+    nextCursor: hasNextPage
+      ? encodeCursor(pageItems[pageItems.length - 1], query.sort)
+      : null,
+    hasNextPage,
   };
 }
 
