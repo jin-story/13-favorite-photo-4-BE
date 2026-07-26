@@ -13,6 +13,7 @@ const router = Router();
  *   schemas:
  *     PhotoCardCreator:
  *       type: object
+ *       required: [id, nickname]
  *       properties:
  *         id:
  *           type: integer
@@ -23,6 +24,7 @@ const router = Router();
  *
  *     PhotoCard:
  *       type: object
+ *       required: [id, creatorId, creator, name, grade, genre, minPrice, description, imageUrl, totalQuantity, createdAt, updatedAt]
  *       properties:
  *         id:
  *           type: integer
@@ -81,6 +83,7 @@ const router = Router();
  * /photo-cards:
  *   post:
  *     summary: 포토카드 생성
+ *     description: 이미지와 포토카드 정보를 등록하고, 생성한 포토카드의 총 발행량만큼 생성자의 보유 카드 정보를 생성합니다. 포토카드와 보유 카드 생성은 동일한 DB 트랜잭션으로 처리됩니다.
  *     tags:
  *       - PhotoCard
  *     security:
@@ -147,7 +150,7 @@ const router = Router();
  *               contentType: image/jpeg, image/png, image/webp
  *     responses:
  *       '201':
- *         description: 포토카드 생성 성공
+ *         description: 포토카드 생성 성공. 생성자에게 총 발행량만큼의 보유 카드가 생성되며, 포토카드와 보유 카드 생성은 동일한 DB 트랜잭션으로 처리됩니다.
  *         content:
  *           application/json:
  *             schema:

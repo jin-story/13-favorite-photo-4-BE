@@ -113,6 +113,31 @@ function verifyOrigin(req, res, next) {
   next();
 }
 
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     tags: [Auth]
+ *     summary: 내 정보 조회
+ *     description: Bearer 액세스 토큰으로 인증된 현재 사용자 정보를 조회합니다.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: 현재 로그인한 사용자 정보 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ *       '404':
+ *         description: 인증된 사용자를 찾을 수 없습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 authRouter.get("/me", protect, authController.getMe);
 
 /**
@@ -121,6 +146,7 @@ authRouter.get("/me", protect, authController.getMe);
  *   post:
  *     tags: [Auth]
  *     summary: 회원가입
+ *     description: 이메일, 닉네임, 비밀번호로 로컬 사용자를 생성하고 액세스 토큰과 HttpOnly 리프레시 토큰 쿠키를 발급합니다.
  *     requestBody:
  *       required: true
  *       content:
@@ -164,6 +190,7 @@ authRouter.post("/signup", validate(userCreateSchema), authController.signup);
  *   post:
  *     tags: [Auth]
  *     summary: 로그인
+ *     description: 이메일과 비밀번호를 검증하고 액세스 토큰과 HttpOnly 리프레시 토큰 쿠키를 발급합니다.
  *     requestBody:
  *       required: true
  *       content:
@@ -206,6 +233,7 @@ authRouter.post("/login", validate(loginSchema), authController.login);
  *   post:
  *     tags: [Auth]
  *     summary: 액세스 토큰 재발급
+ *     description: 허용된 Origin과 HttpOnly refreshToken 쿠키를 검증하고 새 액세스 토큰과 리프레시 토큰 쿠키를 발급합니다.
  *     security:
  *       - refreshTokenCookie: []
  *     parameters:
@@ -251,6 +279,7 @@ authRouter.post("/refresh-token", verifyOrigin, authController.refreshToken);
  *   post:
  *     tags: [Auth]
  *     summary: 로그아웃
+ *     description: 인증된 사용자의 저장된 리프레시 토큰을 제거하고 refreshToken 쿠키를 삭제합니다.
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -305,6 +334,8 @@ authRouter.get(
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AuthResponse'
+ *       '302':
+ *         description: 구글 인증 실패 시 루트 경로로 리다이렉트
  */
 authRouter.get(
   "/google/callback",

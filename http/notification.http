@@ -1,10 +1,10 @@
 @baseUrl = http://localhost:3001
 
 # user1의 access token
-@user1Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4NTA4Njc5NCwiZXhwIjoxNzg1MDkwMzk0fQ.WxDb6mBvkmEZb8rMYBBhUJziGZD8SNv6Mpkq1qn7hyU
+@user1Token = Access token 적기
 
 # user2의 access token
-@user2Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc4NTA4NjgyOSwiZXhwIjoxNzg1MDkwNDI5fQ.RkJGMdh8dvV_ya7W0q680nBXnGiywBHCPLtv9whBk1Q
+@user2Token = Access token 적기
 
 # user1 소유이며 아직 읽지 않은 알림
 @unreadNotificationId = 1
@@ -22,7 +22,7 @@
 @offeredInventoryId = 101
 
 # 새교환에서 생성받은 응답 ID
-@exchangeProposalId = 12
+@exchangeProposalId = 13
 
 ### 교환 제안 생성 user1이 user2의 판매글에 제안
 POST {{baseUrl}}/market-postings/{{marketPostingId}}/exchange-proposals
@@ -31,7 +31,7 @@ Content-Type: application/json
 
 {
   "offeredInventoryId": {{offeredInventoryId}},
-  "message": "이 카드와 교환하고 싶습니다 교환 제안 거절 테스트 하려고요"
+  "message": "교환 제안 승인 알림 테스트하려고요"
 }
 
 ### 판매자 알림 조회 교환 제안 도착 알림 확인
@@ -48,6 +48,19 @@ Content-Type: application/json
 }
 
 ### 교환 제안자 알림 조회 user1의 거절 알림 확인
+GET {{baseUrl}}/users/me/notifications
+Authorization: Bearer {{user1Token}}
+
+### 판매자가 교환 제안 승인
+PATCH {{baseUrl}}/exchange-proposals/{{exchangeProposalId}}
+Authorization: Bearer {{user2Token}}
+Content-Type: application/json
+
+{
+  "status": "APPROVED"
+}
+
+### 교환 제안자 알림 조회 승인 알림 확인
 GET {{baseUrl}}/users/me/notifications
 Authorization: Bearer {{user1Token}}
 

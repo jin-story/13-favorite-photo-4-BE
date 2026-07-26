@@ -21,6 +21,37 @@ const swaggerOptions = {
         },
       },
     },
+    paths: {
+      "/": {
+        get: {
+          tags: ["System"],
+          summary: "API 서버 확인",
+          description: "API 서버의 기본 응답을 조회합니다.",
+          responses: {
+            200: {
+              description: "API 서버 응답 성공",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    required: ["message"],
+                    properties: {
+                      message: {
+                        type: "string",
+                        const: "Favorite Photo API Server",
+                      },
+                    },
+                  },
+                  example: {
+                    message: "Favorite Photo API Server",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     servers: [
       {
         url: `http://localhost:${process.env.PORT || 3001}`,

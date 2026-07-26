@@ -310,6 +310,16 @@ async function approveExchangeProposal(proposal) {
       },
     });
 
+    await tx.notification.create({
+      data: {
+        userId: proposal.proposerId,
+        marketPostingId: proposal.marketPostingId,
+        exchangeProposalId: proposal.id,
+        type: "EXCHANGE_PROPOSAL_APPROVED",
+        message: "교환 제안이 승인되었습니다.",
+      },
+    });
+
     return tx.exchangeProposal.findUnique({
       where: {
         id: proposal.id,

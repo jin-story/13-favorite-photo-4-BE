@@ -64,6 +64,7 @@ const userRouter = Router();
  *   get:
  *     tags: [User]
  *     summary: 내 정보 조회
+ *     description: Bearer 액세스 토큰으로 인증된 현재 사용자 정보를 조회합니다.
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -89,6 +90,7 @@ userRouter.get("/me", protect, userController.getMe);
  *   get:
  *     tags: [User]
  *     summary: 내 보유 카드 목록 조회
+ *     description: 보유 수량이 1개 이상인 포토카드를 ID 내림차순의 커서 방식으로 조회합니다. 이름·등급·장르로 필터링할 수 있으며, includeMeta가 true이면 사용자 정보와 필터와 무관한 전체 보유 카드 수량·등급별 요약을 포함합니다.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -256,6 +258,7 @@ userRouter.get(
  *   get:
  *     tags: [User]
  *     summary: 내가 제시한 교환 목록 조회
+ *     description: 로그인 사용자가 제안자로 생성한 교환 제안을 생성일 내림차순으로 조회합니다.
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -267,7 +270,7 @@ userRouter.get(
  *               type: array
  *               items:
  *                 type: object
- *                 required: [id, status, createdAt, offeredInventory]
+ *                 required: [id, message, status, createdAt, offeredInventory]
  *                 properties:
  *                   id:
  *                     type: integer
@@ -300,6 +303,7 @@ userRouter.get(
  *   get:
  *     tags: [User]
  *     summary: 나의 판매 포토카드 목록 조회
+ *     description: 로그인 사용자가 판매자로 등록한 삭제되지 않은 판매글을 생성일과 ID 내림차순으로 조회합니다.
  *     security:
  *       - bearerAuth: []
  *     responses:
