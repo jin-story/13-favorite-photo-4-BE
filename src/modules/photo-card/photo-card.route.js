@@ -112,6 +112,7 @@ const router = Router();
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 100
+ *                 pattern: '\S'
  *                 example: "Winter Special Card"
  *               grade:
  *                 type: string
@@ -139,6 +140,7 @@ const router = Router();
  *                 type: string
  *                 minLength: 1
  *                 maxLength: 1000
+ *                 pattern: '\S'
  *                 example: "Winter special photocard"
  *               totalQuantity:
  *                 type: integer

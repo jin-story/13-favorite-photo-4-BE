@@ -118,6 +118,7 @@ const router = Router();
  *           type: string
  *           minLength: 1
  *           maxLength: 100
+ *           pattern: '\S'
  *           example: "Winter Special Card 판매"
  *         description:
  *           type: string
@@ -160,6 +161,7 @@ const router = Router();
  *           type: string
  *           minLength: 1
  *           maxLength: 100
+ *           pattern: '\S'
  *           example: "Winter Special Card 판매"
  *         description:
  *           type: string
@@ -228,7 +230,7 @@ const router = Router();
  *           type: integer
  *         status:
  *           type: string
- *           enum: [COMPLETED, CANCELED]
+ *           enum: [COMPLETED]
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -265,6 +267,7 @@ const router = Router();
  *         schema:
  *           type: string
  *           minLength: 1
+ *           pattern: '\S'
  *         description: 이전 응답의 nextCursor. 정렬 조건을 바꾸면 기존 커서를 재사용할 수 없습니다.
  *       - in: query
  *         name: limit
@@ -330,7 +333,7 @@ router.get(
  * /market-postings:
  *   post:
  *     summary: 판매글 등록
- *     description: 로그인 사용자가 기존에 보유한 포토카드를 판매글로 등록합니다. 등록 수량만큼 UserInventory.ownedQuantity가 차감되고, remainingQuantity는 등록 수량으로 설정됩니다. 판매글 생성과 보유 수량 차감은 동일한 DB 트랜잭션으로 처리됩니다.
+ *     description: 로그인 사용자가 보유한 포토카드를 판매글로 등록합니다. 판매 등록 수량은 사용자의 보유 수량에서 차감되며, 같은 수량이 판매글의 초기 잔여 수량으로 설정됩니다. 판매글 생성과 보유 수량 차감은 동일한 DB 트랜잭션으로 처리됩니다.
  *     tags:
  *       - Marketplace
  *     security:
@@ -377,7 +380,7 @@ router.post(
  * /market-postings/{marketPostingId}/transactions:
  *   post:
  *     summary: 포토카드 구매
- *     description: 판매 중인 포토카드를 구매합니다. 구매자의 포인트를 차감하고 판매자의 포인트와 구매자의 보유 수량을 증가시키며 거래 내역을 생성합니다. 구매자에게 TRANSACTION_COMPLETED 알림을 생성하고, 판매자에게 남은 수량에 따라 MARKET_POSTING_SOLD 또는 MARKET_POSTING_SOLD_OUT 알림을 생성합니다. 구매 처리와 거래·알림 생성은 동일한 DB 트랜잭션으로 처리됩니다.
+ *     description: 판매 중인 포토카드를 구매합니다. 구매가 완료되면 구매자와 판매자에게 알림이 생성됩니다.
  *     tags:
  *       - Marketplace
  *     security:
@@ -397,7 +400,7 @@ router.post(
  *             $ref: "#/components/schemas/MarketPostingPurchaseRequest"
  *     responses:
  *       201:
- *         description: 포토카드 구매 성공. 거래 내역과 구매자·판매자 알림이 생성되며, 구매 관련 데이터 변경은 동일한 DB 트랜잭션으로 처리됩니다.
+ *         description: 포토카드 구매 성공. 구매자에게 TRANSACTION_COMPLETED 알림이 생성되고, 판매자에게 남은 수량에 따라 MARKET_POSTING_SOLD 또는 MARKET_POSTING_SOLD_OUT 알림이 생성됩니다. 구매 처리와 거래·알림 생성은 동일한 DB 트랜잭션으로 처리됩니다.
  *         content:
  *           application/json:
  *             schema:
@@ -408,8 +411,16 @@ router.post(
  *         $ref: "#/components/responses/Unauthorized"
  *       404:
  *         description: 판매글을 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       409:
  *         description: 본인 판매글, 포인트 또는 판매 수량 충돌
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  */
 router.post(
   "/:marketPostingId/transactions",
@@ -452,11 +463,19 @@ router.post(
  *       400:
  *         $ref: "#/components/responses/BadRequest"
  *       401:
- *         description: 인증 실패
+ *         $ref: "#/components/responses/Unauthorized"
  *       404:
  *         description: 판매글 또는 보유 포토카드를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       409:
  *         description: 교환을 제안할 수 없는 판매글
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *   get:
  *     summary: 들어온 교환 제안 목록 조회
  *     description: 판매자 본인이 해당 판매글에 들어온 교환 제안을 생성일 내림차순으로 조회합니다.
@@ -483,11 +502,19 @@ router.post(
  *       400:
  *         $ref: "#/components/responses/BadRequest"
  *       401:
- *         description: 인증 실패
+ *         $ref: "#/components/responses/Unauthorized"
  *       403:
  *         description: 판매자 본인이 아님
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       404:
  *         description: 판매글을 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  */
 router.post(
   "/:marketPostingId/exchange-proposals",
@@ -508,7 +535,7 @@ router.get(
  * /market-postings/{marketPostingId}:
  *   get:
  *     summary: 판매글 상세 조회
- *     description: 로그인한 사용자가 판매글 상세 정보를 조회합니다. 응답의 isSeller를 통해 판매자 화면과 다른 사용자 화면을 구분할 수 있습니다.
+ *     description: 로그인한 사용자가 판매글 상세 정보를 조회합니다. 응답에는 로그인 사용자가 해당 판매글의 판매자인지 여부가 포함됩니다.
  *     tags:
  *       - Marketplace
  *     security:
@@ -576,13 +603,25 @@ router.get(
  *             schema:
  *               $ref: "#/components/schemas/MarketPosting"
  *       401:
- *         description: 인증 실패
+ *         $ref: "#/components/responses/Unauthorized"
  *       403:
  *         description: 판매자 본인이 아님
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       404:
  *         description: 판매글을 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       409:
  *         description: 판매글 수량 또는 상태 충돌
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       400:
  *         $ref: "#/components/responses/BadRequest"
  */
@@ -599,7 +638,7 @@ router.patch(
  * /market-postings/{marketPostingId}:
  *   delete:
  *     summary: 판매글 내리기
- *     description: 판매자 본인만 판매 중인 판매글을 내릴 수 있습니다. 남은 판매 수량은 UserInventory.ownedQuantity로 복구됩니다.
+ *     description: 판매자 본인만 판매 중인 판매글을 내릴 수 있습니다. 남은 판매 수량은 판매자의 보유 수량으로 복구됩니다.
  *     tags:
  *       - Marketplace
  *     security:
@@ -617,13 +656,25 @@ router.patch(
  *       400:
  *         $ref: "#/components/responses/BadRequest"
  *       401:
- *         description: 인증 실패
+ *         $ref: "#/components/responses/Unauthorized"
  *       403:
  *         description: 판매자 본인이 아님
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       404:
  *         description: 판매글을 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       409:
  *         description: 판매 중인 판매글이 아님
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  */
 router.delete(
   "/:marketPostingId",

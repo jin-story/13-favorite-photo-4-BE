@@ -51,12 +51,12 @@ const pointDrawRouter = Router();
  *   post:
  *     tags: [Point]
  *     summary: 랜덤 포인트 뽑기 실행
- *     description: 100, 300, 500, 1000 포인트 중 하나를 각각 50%, 30%, 15%, 5% 확률로 뽑아 로그인 사용자의 포인트에 적립합니다. 포인트 뽑기 기록 생성과 사용자 포인트 증가는 동일한 Serializable DB 트랜잭션으로 처리됩니다.
+ *     description: 100, 300, 500, 1000 포인트 중 하나를 각각 50%, 30%, 15%, 5% 확률로 뽑아 로그인 사용자의 포인트에 적립합니다. 포인트 뽑기 기록 생성과 사용자 포인트 증가는 동일한 DB 트랜잭션으로 처리됩니다.
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       '201':
- *         description: 포인트 뽑기 성공. 뽑기 기록 생성과 사용자 포인트 증가가 동일한 Serializable DB 트랜잭션으로 처리됩니다.
+ *         description: 포인트 뽑기 성공. 뽑기 기록 생성과 사용자 포인트 증가가 동일한 DB 트랜잭션으로 처리됩니다.
  *         content:
  *           application/json:
  *             schema:
@@ -70,6 +70,7 @@ const pointDrawRouter = Router();
  *               properties:
  *                 point:
  *                   type: integer
+ *                   enum: [100, 300, 500, 1000]
  *                   description: 이번에 획득한 포인트
  *                 totalPoints:
  *                   type: integer

@@ -101,6 +101,7 @@ userRouter.get("/me", protect, userController.getMe);
  *         schema:
  *           type: string
  *           minLength: 1
+ *           pattern: '\S'
  *       - in: query
  *         name: grade
  *         required: false

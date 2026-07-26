@@ -319,7 +319,8 @@ authRouter.get(
  *     parameters:
  *       - in: query
  *         name: code
- *         required: true
+ *         required: false
+ *         description: 구글 인증 성공 시 전달되는 인증 코드
  *         schema:
  *           type: string
  *     responses:
