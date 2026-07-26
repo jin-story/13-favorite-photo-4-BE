@@ -1,9 +1,8 @@
 import exchangeProposalRepository from "./exchange-proposal.repository.js";
 
 async function createExchangeProposal(proposerId, marketPostingId, payload) {
-  const posting = await exchangeProposalRepository.findMarketPostingById(
-    marketPostingId,
-  );
+  const posting =
+    await exchangeProposalRepository.findMarketPostingById(marketPostingId);
 
   if (!posting) {
     const error = new Error("판매글을 찾을 수 없습니다.");
@@ -41,15 +40,15 @@ async function createExchangeProposal(proposerId, marketPostingId, payload) {
 
   return exchangeProposalRepository.createExchangeProposal({
     proposerId,
+    sellerId: posting.sellerId,
     marketPostingId,
     data: payload,
   });
 }
 
 async function listExchangeProposals(sellerId, marketPostingId) {
-  const posting = await exchangeProposalRepository.findMarketPostingById(
-    marketPostingId,
-  );
+  const posting =
+    await exchangeProposalRepository.findMarketPostingById(marketPostingId);
 
   if (!posting) {
     const error = new Error("판매글을 찾을 수 없습니다.");
@@ -71,9 +70,10 @@ async function listExchangeProposals(sellerId, marketPostingId) {
 }
 
 async function updateExchangeProposal(userId, exchangeProposalId, status) {
-  const proposal = await exchangeProposalRepository.findExchangeProposalById(
-    exchangeProposalId,
-  );
+  const proposal =
+    await exchangeProposalRepository.findExchangeProposalById(
+      exchangeProposalId,
+    );
 
   if (!proposal) {
     const error = new Error("교환 제안을 찾을 수 없습니다.");
@@ -106,11 +106,10 @@ async function updateExchangeProposal(userId, exchangeProposalId, status) {
     throw error;
   }
 
-  if (
-    (status === "APPROVED" || status === "REJECTED") &&
-    !isSeller
-  ) {
-    const error = new Error("판매자 본인만 교환 제안을 승인하거나 거절할 수 있습니다.");
+  if ((status === "APPROVED" || status === "REJECTED") && !isSeller) {
+    const error = new Error(
+      "판매자 본인만 교환 제안을 승인하거나 거절할 수 있습니다.",
+    );
     error.status = 403;
     error.code = "FORBIDDEN_EXCHANGE_PROPOSAL";
     throw error;
