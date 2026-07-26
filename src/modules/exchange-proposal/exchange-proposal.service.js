@@ -137,6 +137,14 @@ async function updateExchangeProposal(userId, exchangeProposalId, status) {
     return exchangeProposalRepository.approveExchangeProposal(proposal);
   }
 
+  if (status === "REJECTED") {
+    return exchangeProposalRepository.rejectExchangeProposal({
+      exchangeProposalId: proposal.id,
+      proposerId: proposal.proposerId,
+      marketPostingId: proposal.marketPostingId,
+    });
+  }
+
   return exchangeProposalRepository.updateExchangeProposalStatus(
     exchangeProposalId,
     status,

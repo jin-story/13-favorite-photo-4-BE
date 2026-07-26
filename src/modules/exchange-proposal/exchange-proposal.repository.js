@@ -161,6 +161,51 @@ async function updateExchangeProposalStatus(exchangeProposalId, status) {
   });
 }
 
+// 추가
+async function rejectExchangeProposal({
+  exchangeProposalId,
+  proposerId,
+  marketPostingId,
+}) {
+  return prisma.$transaction(async (tx) => {
+    const result = await tx.exchangeProposal.updateMany({
+      where: {
+        id: exchangeProposalId,
+        status: "PENDING",
+      },
+      data: {
+        status: "REJECTED",
+      },
+    });
+
+    if (result.count !== 1) {
+      const error = new Error(
+        "교환 제안 상태가 변경되었습니다. 다시 시도해 주세요.",
+      );
+      error.status = 409;
+      error.code = "EXCHANGE_PROPOSAL_STATUS_CONFLICT";
+      throw error;
+    }
+
+    await tx.notification.create({
+      data: {
+        userId: proposerId,
+        marketPostingId,
+        exchangeProposalId,
+        type: "EXCHANGE_PROPOSAL_REJECTED",
+        message: "교환 제안이 거절되었습니다.",
+      },
+    });
+
+    return tx.exchangeProposal.findUnique({
+      where: {
+        id: exchangeProposalId,
+      },
+      select: exchangeProposalSummarySelect,
+    });
+  });
+}
+
 async function approveExchangeProposal(proposal) {
   return prisma.$transaction(async (tx) => {
     const updatedProposal = await tx.exchangeProposal.updateMany({
@@ -282,4 +327,5 @@ export default {
   findExchangeProposalById,
   updateExchangeProposalStatus,
   approveExchangeProposal,
+  rejectExchangeProposal,
 };
