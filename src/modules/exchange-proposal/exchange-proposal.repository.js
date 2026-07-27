@@ -56,15 +56,34 @@ async function findOfferedInventoryById(offeredInventoryId, proposerId) {
   });
 }
 
-async function createExchangeProposal({ proposerId, marketPostingId, data }) {
-  return prisma.exchangeProposal.create({
-    data: {
-      marketPostingId,
-      proposerId,
-      offeredInventoryId: data.offeredInventoryId,
-      message: data.message,
-    },
-    select: exchangeProposalSummarySelect,
+async function createExchangeProposal({
+  proposerId,
+  sellerId,
+  marketPostingId,
+  data,
+}) {
+  return prisma.$transaction(async (tx) => {
+    const exchangeProposal = await tx.exchangeProposal.create({
+      data: {
+        marketPostingId,
+        proposerId,
+        offeredInventoryId: data.offeredInventoryId,
+        message: data.message,
+      },
+      select: exchangeProposalSummarySelect,
+    });
+
+    await tx.notification.create({
+      data: {
+        userId: sellerId,
+        marketPostingId,
+        exchangeProposalId: exchangeProposal.id,
+        type: "EXCHANGE_PROPOSAL_RECEIVED",
+        message: "판매 중인 포토카드에 새로운 교환 제안이 도착했습니다.",
+      },
+    });
+
+    return exchangeProposal;
   });
 }
 
@@ -126,7 +145,9 @@ async function updateExchangeProposalStatus(exchangeProposalId, status) {
   });
 
   if (updatedProposal.count !== 1) {
-    const error = new Error("교환 제안 상태가 변경되었습니다. 다시 시도해 주세요.");
+    const error = new Error(
+      "교환 제안 상태가 변경되었습니다. 다시 시도해 주세요.",
+    );
     error.status = 409;
     error.code = "EXCHANGE_PROPOSAL_STATUS_CONFLICT";
     throw error;
@@ -137,6 +158,51 @@ async function updateExchangeProposalStatus(exchangeProposalId, status) {
       id: exchangeProposalId,
     },
     select: exchangeProposalSummarySelect,
+  });
+}
+
+// 추가
+async function rejectExchangeProposal({
+  exchangeProposalId,
+  proposerId,
+  marketPostingId,
+}) {
+  return prisma.$transaction(async (tx) => {
+    const result = await tx.exchangeProposal.updateMany({
+      where: {
+        id: exchangeProposalId,
+        status: "PENDING",
+      },
+      data: {
+        status: "REJECTED",
+      },
+    });
+
+    if (result.count !== 1) {
+      const error = new Error(
+        "교환 제안 상태가 변경되었습니다. 다시 시도해 주세요.",
+      );
+      error.status = 409;
+      error.code = "EXCHANGE_PROPOSAL_STATUS_CONFLICT";
+      throw error;
+    }
+
+    await tx.notification.create({
+      data: {
+        userId: proposerId,
+        marketPostingId,
+        exchangeProposalId,
+        type: "EXCHANGE_PROPOSAL_REJECTED",
+        message: "교환 제안이 거절되었습니다.",
+      },
+    });
+
+    return tx.exchangeProposal.findUnique({
+      where: {
+        id: exchangeProposalId,
+      },
+      select: exchangeProposalSummarySelect,
+    });
   });
 }
 
@@ -153,7 +219,9 @@ async function approveExchangeProposal(proposal) {
     });
 
     if (updatedProposal.count !== 1) {
-      const error = new Error("교환 제안 상태가 변경되었습니다. 다시 시도해 주세요.");
+      const error = new Error(
+        "교환 제안 상태가 변경되었습니다. 다시 시도해 주세요.",
+      );
       error.status = 409;
       error.code = "EXCHANGE_PROPOSAL_STATUS_CONFLICT";
       throw error;
@@ -196,7 +264,9 @@ async function approveExchangeProposal(proposal) {
     });
 
     if (updatedPosting.count !== 1) {
-      const error = new Error("판매 수량이 변경되었습니다. 다시 시도해 주세요.");
+      const error = new Error(
+        "판매 수량이 변경되었습니다. 다시 시도해 주세요.",
+      );
       error.status = 409;
       error.code = "MARKET_POSTING_QUANTITY_CONFLICT";
       throw error;
@@ -240,6 +310,16 @@ async function approveExchangeProposal(proposal) {
       },
     });
 
+    await tx.notification.create({
+      data: {
+        userId: proposal.proposerId,
+        marketPostingId: proposal.marketPostingId,
+        exchangeProposalId: proposal.id,
+        type: "EXCHANGE_PROPOSAL_APPROVED",
+        message: "교환 제안이 승인되었습니다.",
+      },
+    });
+
     return tx.exchangeProposal.findUnique({
       where: {
         id: proposal.id,
@@ -257,4 +337,5 @@ export default {
   findExchangeProposalById,
   updateExchangeProposalStatus,
   approveExchangeProposal,
+  rejectExchangeProposal,
 };
