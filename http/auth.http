@@ -27,7 +27,7 @@ Authorization: Bearer {{accessToken}}
 ### 토큰 재발급 (로그인 시 내려온 refreshToken 쿠키가 자동으로 전송됨)
 POST {{baseUrl}}/auth/refresh-token
 Origin: http://localhost:3000
-Cookie: 로그인 시 발급 받은 리프레쉬 토큰 넣기
+Cookie: refreshToken=
 
 ### 로그아웃
 POST {{baseUrl}}/auth/logout
@@ -51,6 +51,16 @@ Content-Type: application/json
 {
   "email": "user2@example.com",
   "encryptedPassword": "password2"
+}
+
+
+### 프론트에서 회원가입 진행한 로그인
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "lucy@lucy.com",
+  "encryptedPassword": "12341234"
 }
 
 

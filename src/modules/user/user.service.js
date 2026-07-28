@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { createHash, timingSafeEqual } from "node:crypto";
+
 import userRepository from "./user.repository.js";
 
 function hashedPassword(encryptedPassword) {
@@ -13,6 +15,24 @@ async function verifyPassword(inputPassword, encryptedPassword) {
     error.status = 401;
     throw error;
   }
+}
+
+function hashRefreshToken(token) {
+  const hash = createHash("sha256");
+  hash.update(token);
+
+  return hash.digest();
+}
+
+function verifyRefreshToken(refreshToken, storedRefreshTokenHash) {
+  const refreshTokenHash = hashRefreshToken(refreshToken);
+  const storedRefreshTokenBuffer = Buffer.from(storedRefreshTokenHash, "hex");
+
+  if (refreshTokenHash.length !== storedRefreshTokenBuffer.length) {
+    return false;
+  }
+
+  return timingSafeEqual(refreshTokenHash, storedRefreshTokenBuffer);
 }
 
 function createToken(user, type) {
@@ -30,8 +50,7 @@ function createToken(user, type) {
 async function refreshToken(userId, refreshToken) {
   const user = await userRepository.findById(userId);
   const isValid =
-    user?.refreshToken &&
-    (await bcrypt.compare(refreshToken, user.refreshToken));
+    user?.refreshToken && verifyRefreshToken(refreshToken, user.refreshToken);
   if (!isValid) {
     const error = new Error("접근 권한이 없습니다.");
     error.status = 403;
@@ -43,8 +62,11 @@ async function refreshToken(userId, refreshToken) {
 }
 
 async function saveRefreshToken(userId, token) {
-  const hashed = await bcrypt.hash(token, 10);
-  return userRepository.update(userId, { refreshToken: hashed });
+  const hashed = hashRefreshToken(token).toString("hex");
+
+  return userRepository.update(userId, {
+    refreshToken: hashed,
+  });
 }
 
 function filterSensitiveUserData(user) {
@@ -87,8 +109,9 @@ async function getUser(email, inputPassword) {
 }
 
 async function updateUser(id, data) {
-  const updateUser = await userRepository.update(id, data);
-  return filterSensitiveUserData(updateUser);
+  const updatedUser = await userRepository.update(id, data);
+
+  return filterSensitiveUserData(updatedUser);
 }
 
 async function getMe(userId) {
