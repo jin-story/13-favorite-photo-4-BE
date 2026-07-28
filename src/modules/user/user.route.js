@@ -433,16 +433,20 @@ userRouter.patch(
  *   get:
  *     tags: [User]
  *     summary: 실시간 알림 구독
- *     description: 인증된 사용자의 실시간 알림을 SSE로 전송합니다.
+ *     description: |
+ *       Bearer 액세스 토큰으로 인증한 뒤 SSE 연결을 열고 유지합니다.
+ *       각 알림은 `data: {JSON}\n\n` 형식으로 전달됩니다.
+ *       Swagger UI의 Try it out은 장시간 연결을 유지하는 SSE 테스트에 불편하므로 전용 SSE 클라이언트 사용을 권장합니다.
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       '200':
- *         description: SSE 연결 성공
+ *         description: SSE 연결을 열고 유지하며 실시간 알림을 전송합니다.
  *         content:
  *           text/event-stream:
  *             schema:
  *               type: string
+ *               description: '`data: {JSON}\n\n` 형식의 SSE 알림 스트림'
  *       '401':
  *         $ref: '#/components/responses/Unauthorized'
  */
