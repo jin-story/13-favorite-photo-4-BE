@@ -27,7 +27,7 @@ Authorization: Bearer {{accessToken}}
 ### 토큰 재발급 (로그인 시 내려온 refreshToken 쿠키가 자동으로 전송됨)
 POST {{baseUrl}}/auth/refresh-token
 Origin: http://localhost:3000
-Cookie: refreshToken=
+Cookie:
 
 ### 로그아웃
 POST {{baseUrl}}/auth/logout
