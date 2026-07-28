@@ -436,7 +436,7 @@ userRouter.patch(
  *     description: |
  *       Bearer 액세스 토큰으로 인증한 뒤 SSE 연결을 열고 유지합니다.
  *       각 알림은 `data: {JSON}\n\n` 형식으로 전달됩니다.
- *       Swagger UI의 Try it out은 장시간 연결을 유지하는 SSE 테스트에 불편하므로 전용 SSE 클라이언트 사용을 권장합니다.
+ *       Swagger UI의 Try it out은 장시간 연결을 유지하는 SSE 테스트에 적합하지 않습니다.
  *     security:
  *       - bearerAuth: []
  *     responses:
