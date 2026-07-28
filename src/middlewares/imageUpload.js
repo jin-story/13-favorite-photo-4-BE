@@ -2,8 +2,9 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 
 import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
-export const UPLOAD_DIRECTORY = path.resolve("uploads");
+import cloudinary from "../config/cloudinary.js";
 
 const ALLOWED_IMAGE_TYPES = new Map([
   ["image/jpeg", new Set([".jpg", ".jpeg"])],
@@ -13,14 +14,11 @@ const ALLOWED_IMAGE_TYPES = new Map([
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
-const storage = multer.diskStorage({
-  destination: UPLOAD_DIRECTORY,
-
-  filename(req, file, callback) {
-    const extension = path.extname(file.originalname).toLowerCase();
-    const filename = `${randomUUID()}${extension}`;
-
-    callback(null, filename);
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "photo-cards",
+    public_id: () => randomUUID(),
   },
 });
 
