@@ -1,10 +1,10 @@
 @baseUrl = http://localhost:3001
 
 # user1의 access token
-@user1Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4NTIxODY3NCwiZXhwIjoxNzg1MjIyMjc0fQ.yLhRk0rgoK9ugD9JjXRjpRP2Pgd17TG-hObdH1AOKKM
+@user1Token = user1의 access token
 
 # user2의 access token
-@user2Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc4NTIxODY5NSwiZXhwIjoxNzg1MjIyMjk1fQ.Wqj_J2YzCF9WKrF2EMtK9vc-gxfuV6-bXo8MHlBuRhY
+@user2Token = user2의 access token
 
 # user1 소유이며 아직 읽지 않은 알림
 @unreadNotificationId = 1
