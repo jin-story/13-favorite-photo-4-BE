@@ -5,13 +5,22 @@
 @genre = CONCERT
 @limit = 2
 @cursor =
+@inventoryId = 1
 
 ### 내 정보 조회
 GET {{baseUrl}}/users/me
 Authorization: Bearer {{accessToken}}
 
+### 내 포인트 조회
+GET {{baseUrl}}/users/me/points
+Authorization: Bearer {{accessToken}}
+
 ### 모달용 보유 카드 조회
 GET {{baseUrl}}/users/me/inventories
+Authorization: Bearer {{accessToken}}
+
+### 내 보유 카드 상세 조회
+GET {{baseUrl}}/users/me/inventories/{{inventoryId}}
 Authorization: Bearer {{accessToken}}
 
 ### 마이갤러리용 보유 카드 조회

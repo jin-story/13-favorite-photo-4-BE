@@ -1,5 +1,6 @@
 import {
   getMyInventoriesQuerySchema,
+  inventoryIdParamsSchema,
   markNotificationAsReadParamsSchema,
 } from "./user.schema.js";
 import userService from "./user.service.js";
@@ -24,6 +25,22 @@ async function getMyInventories(req, res) {
   );
 
   return res.status(200).json(inventories);
+}
+
+async function getMyInventory(req, res) {
+  const { inventoryId } = inventoryIdParamsSchema.parse(req.params);
+  const inventory = await userService.getMyInventory(
+    req.user.userId,
+    inventoryId,
+  );
+
+  return res.status(200).json(inventory);
+}
+
+async function getMyPoints(req, res) {
+  const points = await userService.getMyPoints(req.user.userId);
+
+  return res.status(200).json(points);
 }
 
 async function getMyExchangeProposals(req, res) {
@@ -61,6 +78,8 @@ async function markNotificationAsRead(req, res) {
 export default {
   getMe,
   getMyInventories,
+  getMyInventory,
+  getMyPoints,
   getMyExchangeProposals,
   getMyMarketPostings,
   getMyNotifications,

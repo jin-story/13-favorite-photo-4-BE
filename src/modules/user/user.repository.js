@@ -131,6 +131,43 @@ async function findInventoriesByUserId(
   return prisma.userInventory.findMany(query);
 }
 
+async function findInventoryByIdAndUserId(inventoryId, userId) {
+  return prisma.userInventory.findFirst({
+    where: {
+      id: inventoryId,
+      userId,
+      ownedQuantity: {
+        gt: 0,
+      },
+    },
+    select: {
+      id: true,
+      photoCardId: true,
+      ownedQuantity: true,
+      createdAt: true,
+      updatedAt: true,
+      photoCard: {
+        select: {
+          id: true,
+          name: true,
+          grade: true,
+          genre: true,
+          minPrice: true,
+          description: true,
+          imageUrl: true,
+          totalQuantity: true,
+          creator: {
+            select: {
+              id: true,
+              nickname: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
 async function findExchangeProposalsByProposerId(userId) {
   return prisma.exchangeProposal.findMany({
     where: {
@@ -281,6 +318,7 @@ export default {
   save,
   update,
   findInventoriesByUserId,
+  findInventoryByIdAndUserId,
   findInventoriesForSummaryByUserId,
   findExchangeProposalsByProposerId,
   findMarketPostingsBySellerId,

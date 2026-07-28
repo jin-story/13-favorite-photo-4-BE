@@ -32,6 +32,13 @@ export const getMyInventoriesQuerySchema = z.object({
     .default(false),
 });
 
+export const inventoryIdParamsSchema = z.object({
+  inventoryId: z.coerce
+    .number({ error: "재고 ID는 숫자여야 합니다." })
+    .int({ error: "재고 ID는 정수여야 합니다." })
+    .positive({ error: "재고 ID는 양의 정수여야 합니다." }),
+});
+
 export const markNotificationAsReadParamsSchema = z.object({
   notificationId: z.coerce
     .number({ error: "알림 ID는 숫자여야 합니다." })

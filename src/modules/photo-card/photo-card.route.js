@@ -2,9 +2,12 @@ import { Router } from "express";
 
 import { protect } from "../../middlewares/auth.js";
 import { uploadImage } from "../../middlewares/imageUpload.js";
-import { validate } from "../../middlewares/validate.js";
+import { validate, validateRequest } from "../../middlewares/validate.js";
 import photoCardController from "./photo-card.controller.js";
-import { createPhotoCardBodySchema } from "./photo-card.schema.js";
+import {
+  createPhotoCardBodySchema,
+  listMyPhotoCardsQuerySchema,
+} from "./photo-card.schema.js";
 
 const router = Router();
 /**
@@ -223,6 +226,93 @@ router.post(
   uploadImage,
   validate(createPhotoCardBodySchema),
   photoCardController.createPhotoCard,
+);
+
+/**
+ * @swagger
+ * /photo-cards/me:
+ *   get:
+ *     summary: 내 포토카드 목록 조회
+ *     description: 로그인 사용자가 보유한 수량 1개 이상의 포토카드를 조회합니다.
+ *     tags: [PhotoCard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *       - in: query
+ *         name: keyword
+ *         schema:
+ *           type: string
+ *           minLength: 1
+ *       - in: query
+ *         name: grade
+ *         schema:
+ *           type: string
+ *           enum: [COMMON, RARE, SUPER_RARE, LEGENDARY]
+ *       - in: query
+ *         name: genre
+ *         schema:
+ *           type: string
+ *           enum: [ALBUM, SPECIAL, FAN_SIGN, SEASON_GREETING, FAN_MEETING, CONCERT, MD, COLLABORATION, FAN_CLUB, ETC]
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [recent, oldest, price_asc, price_desc]
+ *           default: recent
+ *     responses:
+ *       '200':
+ *         description: 내 포토카드 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [list, pagination]
+ *               properties:
+ *                 list:
+ *                   type: array
+ *                   items:
+ *                     allOf:
+ *                       - $ref: '#/components/schemas/PhotoCard'
+ *                       - type: object
+ *                         required: [ownedQuantity]
+ *                         properties:
+ *                           ownedQuantity:
+ *                             type: integer
+ *                 pagination:
+ *                   type: object
+ *                   required: [page, limit, total, totalPages]
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     total:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *       '400':
+ *         $ref: '#/components/responses/BadRequest'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.get(
+  "/me",
+  protect,
+  validateRequest({ query: listMyPhotoCardsQuerySchema }),
+  photoCardController.listMyPhotoCards,
 );
 
 export default router;

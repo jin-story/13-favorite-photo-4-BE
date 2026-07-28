@@ -4,6 +4,7 @@ import { protect } from "../../middlewares/auth.js";
 import { validateRequest } from "../../middlewares/validate.js";
 import {
   getMyInventoriesQuerySchema,
+  inventoryIdParamsSchema,
   markNotificationAsReadParamsSchema,
 } from "./user.schema.js";
 
@@ -252,6 +253,94 @@ userRouter.get(
   }),
   userController.getMyInventories,
 );
+
+/**
+ * @swagger
+ * /users/me/inventories/{inventoryId}:
+ *   get:
+ *     tags: [User]
+ *     summary: 내 보유 카드 상세 조회
+ *     description: 로그인 사용자가 보유한 수량 1개 이상의 재고를 ID로 조회합니다.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: inventoryId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *     responses:
+ *       '200':
+ *         description: 내 보유 카드 상세 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [id, photoCardId, ownedQuantity, createdAt, updatedAt, photoCard]
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 photoCardId:
+ *                   type: integer
+ *                 ownedQuantity:
+ *                   type: integer
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                 photoCard:
+ *                   $ref: '#/components/schemas/UserPhotoCard'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequest'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ *       '404':
+ *         description: 본인이 보유한 재고를 찾을 수 없습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+userRouter.get(
+  "/me/inventories/:inventoryId",
+  protect,
+  validateRequest({ params: inventoryIdParamsSchema }),
+  userController.getMyInventory,
+);
+
+/**
+ * @swagger
+ * /users/me/points:
+ *   get:
+ *     tags: [User]
+ *     summary: 내 포인트 조회
+ *     description: 로그인 사용자의 현재 포인트 잔액을 조회합니다.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: 내 포인트 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [points]
+ *               properties:
+ *                 points:
+ *                   type: integer
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ *       '404':
+ *         description: 인증된 사용자를 찾을 수 없습니다.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+userRouter.get("/me/points", protect, userController.getMyPoints);
 
 /**
  * @swagger

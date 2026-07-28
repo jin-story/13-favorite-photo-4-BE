@@ -30,6 +30,20 @@ async function createPhotoCard(req, res, next) {
   }
 }
 
+async function listMyPhotoCards(req, res, next) {
+  try {
+    const photoCards = await photoCardService.listMyPhotoCards(
+      req.user.userId,
+      req.query,
+    );
+
+    res.status(200).json(photoCards);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export default {
   createPhotoCard,
+  listMyPhotoCards,
 };

@@ -37,6 +37,39 @@ export async function createPhotoCard({ creatorId, data }) {
   });
 }
 
+export async function listMyPhotoCards({ userId, where, orderBy, skip, take }) {
+  const inventoryWhere = {
+    userId,
+    ownedQuantity: {
+      gt: 0,
+    },
+    photoCard: {
+      is: where,
+    },
+  };
+
+  const [list, total] = await Promise.all([
+    prisma.userInventory.findMany({
+      where: inventoryWhere,
+      orderBy: {
+        photoCard: orderBy,
+      },
+      skip,
+      take,
+      select: {
+        ownedQuantity: true,
+        photoCard: {
+          include: photoCardInclude,
+        },
+      },
+    }),
+    prisma.userInventory.count({ where: inventoryWhere }),
+  ]);
+
+  return { list, total };
+}
+
 export default {
   createPhotoCard,
+  listMyPhotoCards,
 };

@@ -1,6 +1,14 @@
 @baseUrl = http://localhost:3001
 @accessToken = 여기에 로그인 후 발급받은 access token
 
+### 내 포토카드 목록 조회
+GET {{baseUrl}}/photo-cards/me?page=1&limit=10&sort=recent
+Authorization: Bearer {{accessToken}}
+
+### 내 포토카드 필터 조회
+GET {{baseUrl}}/photo-cards/me?keyword=테스트&grade=RARE&genre=SPECIAL&sort=price_asc
+Authorization: Bearer {{accessToken}}
+
 ### 포토카드 생성 성공
 POST {{baseUrl}}/photo-cards
 Authorization: Bearer {{accessToken}}

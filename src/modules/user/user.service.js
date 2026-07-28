@@ -171,6 +171,35 @@ async function getMyInventories(userId, filters) {
   };
 }
 
+async function getMyInventory(userId, inventoryId) {
+  const inventory = await userRepository.findInventoryByIdAndUserId(
+    inventoryId,
+    userId,
+  );
+
+  if (!inventory) {
+    const error = new Error("보유 포토카드를 찾을 수 없습니다.");
+    error.status = 404;
+    error.code = "INVENTORY_NOT_FOUND";
+    throw error;
+  }
+
+  return inventory;
+}
+
+async function getMyPoints(userId) {
+  const user = await userRepository.findById(userId);
+
+  if (!user) {
+    const error = new Error("존재하지 않는 유저입니다.");
+    error.status = 404;
+    error.code = "USER_NOT_FOUND";
+    throw error;
+  }
+
+  return { points: user.points };
+}
+
 async function getMyExchangeProposals(userId) {
   return userRepository.findExchangeProposalsByProposerId(userId);
 }
@@ -242,6 +271,8 @@ export default {
   createUser,
   getMe,
   getMyInventories,
+  getMyInventory,
+  getMyPoints,
   getMyExchangeProposals,
   getMyMarketPostings,
   getMyNotifications,
