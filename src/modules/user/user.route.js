@@ -1,7 +1,7 @@
 import { Router } from "express";
 import userController from "./user.controller.js";
-import { protect } from "../../middlewares/auth.js";
-import { validateRequest } from "../../middlewares/validate.js";
+import { protect } from "../../common/middlewares/auth.js";
+import { validateRequest } from "../../common/middlewares/validate.js";
 import {
   getMyInventoriesQuerySchema,
   markNotificationAsReadParamsSchema,
@@ -425,6 +425,31 @@ userRouter.patch(
     params: markNotificationAsReadParamsSchema,
   }),
   userController.markNotificationAsRead,
+);
+
+/**
+ * @swagger
+ * /users/me/notifications/subscribe:
+ *   get:
+ *     tags: [User]
+ *     summary: 실시간 알림 구독
+ *     description: 인증된 사용자의 실시간 알림을 SSE로 전송합니다.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: SSE 연결 성공
+ *         content:
+ *           text/event-stream:
+ *             schema:
+ *               type: string
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+userRouter.get(
+  "/me/notifications/subscribe",
+  protect,
+  userController.subscribeNotifications,
 );
 
 export default userRouter;

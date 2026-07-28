@@ -1,6 +1,6 @@
 import { Router } from "express";
 import pointDrawController from "./point-draw.controller.js";
-import { protect } from "../../middlewares/auth.js";
+import { protect } from "../../common/middlewares/auth.js";
 
 const pointDrawRouter = Router();
 

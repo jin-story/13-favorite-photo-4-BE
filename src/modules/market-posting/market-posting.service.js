@@ -1,3 +1,5 @@
+import { sendNotification } from "../../common/utils/notificationSubscribers.js";
+
 import * as marketPostingRepository from "./market-posting.repository.js";
 import { createHttpError } from "./market-posting.error.js";
 
@@ -95,23 +97,33 @@ function buildOrderBy(sort) {
 
 function encodeCursor(posting, sort) {
   const field = sort.startsWith("price") ? "price" : "createdAt";
-  const value = field === "createdAt" ? posting.createdAt.toISOString() : posting.price;
+  const value =
+    field === "createdAt" ? posting.createdAt.toISOString() : posting.price;
 
-  return Buffer.from(JSON.stringify({ sort, value, id: posting.id })).toString("base64url");
+  return Buffer.from(JSON.stringify({ sort, value, id: posting.id })).toString(
+    "base64url",
+  );
 }
 
 function decodeCursor(cursor, sort) {
   if (!cursor) return undefined;
 
   try {
-    const decoded = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));
+    const decoded = JSON.parse(
+      Buffer.from(cursor, "base64url").toString("utf8"),
+    );
     const isPriceSort = sort.startsWith("price");
     const value = isPriceSort ? decoded.value : new Date(decoded.value);
     const hasValidValue = isPriceSort
       ? Number.isInteger(value) && value >= 0
       : !Number.isNaN(value.getTime());
 
-    if (decoded.sort !== sort || !Number.isInteger(decoded.id) || decoded.id < 1 || !hasValidValue) {
+    if (
+      decoded.sort !== sort ||
+      !Number.isInteger(decoded.id) ||
+      decoded.id < 1 ||
+      !hasValidValue
+    ) {
       throw new Error("Invalid cursor");
     }
 
@@ -195,9 +207,19 @@ export async function purchaseMarketPosting(
   marketPostingId,
   quantity,
 ) {
-  return marketPostingRepository.purchaseMarketPosting({
+  const result = await marketPostingRepository.purchaseMarketPosting({
     buyerId,
     marketPostingId,
     quantity,
   });
+
+  for (const notification of result.notifications) {
+    sendNotification(notification.userId, notification);
+  }
+
+  return {
+    ...result.transaction,
+    totalPrice: result.totalPrice,
+    remainingQuantity: result.remainingQuantity,
+  };
 }

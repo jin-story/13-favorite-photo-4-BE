@@ -1,7 +1,7 @@
 import passport from "passport";
-import googleStrategy from "../middlewares/googleStrategy.js";
-import jwt from "../middlewares/passport/jwtStrategy.js";
-import localStrategy from "../middlewares/passport/localStrategy.js";
+import googleStrategy from "../common/middlewares/googleStrategy.js";
+import jwt from "../common/middlewares/passport/jwtStrategy.js";
+import localStrategy from "../common/middlewares/passport/localStrategy.js";
 import userRepository from "../modules/user/user.repository.js";
 
 passport.use(localStrategy);

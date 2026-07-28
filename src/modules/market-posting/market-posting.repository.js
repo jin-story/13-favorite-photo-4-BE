@@ -82,7 +82,13 @@ export async function createMarketPosting({ sellerId, data }) {
   });
 }
 
-export async function listMarketPostings({ where, orderBy, cursor, sort, limit }) {
+export async function listMarketPostings({
+  where,
+  orderBy,
+  cursor,
+  sort,
+  limit,
+}) {
   const isPriceSort = sort.startsWith("price");
   const field = isPriceSort ? "price" : "createdAt";
   const direction = sort === "oldest" || sort === "price_asc" ? "gt" : "lt";
@@ -123,11 +129,19 @@ export async function updateMarketPosting({ id, sellerId, data }) {
     });
 
     if (!posting) {
-      throw createHttpError("판매글을 찾을 수 없습니다.", 404, "MARKET_POSTING_NOT_FOUND");
+      throw createHttpError(
+        "판매글을 찾을 수 없습니다.",
+        404,
+        "MARKET_POSTING_NOT_FOUND",
+      );
     }
 
     if (posting.sellerId !== sellerId) {
-      throw createHttpError("판매자 본인만 수정할 수 있습니다.", 403, "FORBIDDEN_MARKET_POSTING");
+      throw createHttpError(
+        "판매자 본인만 수정할 수 있습니다.",
+        403,
+        "FORBIDDEN_MARKET_POSTING",
+      );
     }
 
     if (posting.status !== "ON_SALE") {
@@ -227,11 +241,19 @@ export async function cancelMarketPosting({ id, sellerId }) {
     });
 
     if (!posting) {
-      throw createHttpError("판매글을 찾을 수 없습니다.", 404, "MARKET_POSTING_NOT_FOUND");
+      throw createHttpError(
+        "판매글을 찾을 수 없습니다.",
+        404,
+        "MARKET_POSTING_NOT_FOUND",
+      );
     }
 
     if (posting.sellerId !== sellerId) {
-      throw createHttpError("판매자 본인만 취소할 수 있습니다.", 403, "FORBIDDEN_MARKET_POSTING");
+      throw createHttpError(
+        "판매자 본인만 취소할 수 있습니다.",
+        403,
+        "FORBIDDEN_MARKET_POSTING",
+      );
     }
 
     if (posting.status !== "ON_SALE") {
@@ -275,7 +297,11 @@ export async function cancelMarketPosting({ id, sellerId }) {
   });
 }
 
-export async function purchaseMarketPosting({ buyerId, marketPostingId, quantity }) {
+export async function purchaseMarketPosting({
+  buyerId,
+  marketPostingId,
+  quantity,
+}) {
   return prisma.$transaction(async (tx) => {
     const posting = await tx.marketPosting.findFirst({
       where: {
@@ -292,7 +318,11 @@ export async function purchaseMarketPosting({ buyerId, marketPostingId, quantity
     });
 
     if (!posting) {
-      throw createHttpError("판매글을 찾을 수 없습니다.", 404, "MARKET_POSTING_NOT_FOUND");
+      throw createHttpError(
+        "판매글을 찾을 수 없습니다.",
+        404,
+        "MARKET_POSTING_NOT_FOUND",
+      );
     }
 
     if (posting.sellerId === buyerId) {
@@ -327,7 +357,11 @@ export async function purchaseMarketPosting({ buyerId, marketPostingId, quantity
     });
 
     if (updatedBuyer.count !== 1) {
-      throw createHttpError("보유 포인트가 부족합니다.", 409, "INSUFFICIENT_POINTS");
+      throw createHttpError(
+        "보유 포인트가 부족합니다.",
+        409,
+        "INSUFFICIENT_POINTS",
+      );
     }
 
     const remainingQuantity = posting.remainingQuantity - quantity;
@@ -391,32 +425,37 @@ export async function purchaseMarketPosting({ buyerId, marketPostingId, quantity
       },
     });
 
-    const notifications = [
-      {
+    const buyerNotification = await tx.notification.create({
+      data: {
         userId: buyerId,
         marketPostingId,
         transactionId: transaction.id,
         type: "TRANSACTION_COMPLETED",
         message: "포토카드 구매가 완료되었습니다.",
       },
-      {
+    });
+
+    const sellerNotification = await tx.notification.create({
+      data: {
         userId: posting.sellerId,
         marketPostingId,
         transactionId: transaction.id,
-        type: remainingQuantity === 0 ? "MARKET_POSTING_SOLD_OUT" : "MARKET_POSTING_SOLD",
+        type:
+          remainingQuantity === 0
+            ? "MARKET_POSTING_SOLD_OUT"
+            : "MARKET_POSTING_SOLD",
         message:
           remainingQuantity === 0
             ? "판매 중인 포토카드가 품절되었습니다."
             : "판매 중인 포토카드가 판매되었습니다.",
       },
-    ];
-
-    await tx.notification.createMany({ data: notifications });
+    });
 
     return {
-      ...transaction,
+      transaction,
       totalPrice,
       remainingQuantity,
+      notifications: [buyerNotification, sellerNotification],
     };
   });
 }

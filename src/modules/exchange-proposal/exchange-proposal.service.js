@@ -1,3 +1,4 @@
+import { sendNotification } from "../../common/utils/notificationSubscribers.js";
 import exchangeProposalRepository from "./exchange-proposal.repository.js";
 
 async function createExchangeProposal(proposerId, marketPostingId, payload) {
@@ -38,12 +39,17 @@ async function createExchangeProposal(proposerId, marketPostingId, payload) {
     throw error;
   }
 
-  return exchangeProposalRepository.createExchangeProposal({
-    proposerId,
-    sellerId: posting.sellerId,
-    marketPostingId,
-    data: payload,
-  });
+  const { exchangeProposal, notification } =
+    await exchangeProposalRepository.createExchangeProposal({
+      proposerId,
+      sellerId: posting.sellerId,
+      marketPostingId,
+      data: payload,
+    });
+
+  sendNotification(posting.sellerId, notification);
+
+  return exchangeProposal;
 }
 
 async function listExchangeProposals(sellerId, marketPostingId) {
@@ -134,15 +140,25 @@ async function updateExchangeProposal(userId, exchangeProposalId, status) {
       throw error;
     }
 
-    return exchangeProposalRepository.approveExchangeProposal(proposal);
+    const { exchangeProposal, notification } =
+      await exchangeProposalRepository.approveExchangeProposal(proposal);
+
+    sendNotification(proposal.proposerId, notification);
+
+    return exchangeProposal;
   }
 
   if (status === "REJECTED") {
-    return exchangeProposalRepository.rejectExchangeProposal({
-      exchangeProposalId: proposal.id,
-      proposerId: proposal.proposerId,
-      marketPostingId: proposal.marketPostingId,
-    });
+    const { exchangeProposal, notification } =
+      await exchangeProposalRepository.rejectExchangeProposal({
+        exchangeProposalId: proposal.id,
+        proposerId: proposal.proposerId,
+        marketPostingId: proposal.marketPostingId,
+      });
+
+    sendNotification(proposal.proposerId, notification);
+
+    return exchangeProposal;
   }
 
   return exchangeProposalRepository.updateExchangeProposalStatus(

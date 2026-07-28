@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-Application code lives in `src/`. `src/app.js` configures Express and middleware, while `src/server.js` starts the server. Feature code is grouped under `src/modules/<feature>/` and follows a route-controller-service-repository split; Zod request schemas use `*.schema.js`. Shared middleware and configuration belong in `src/middlewares/` and `src/config/`. Prisma models, migrations, and seed data live in `prisma/`. Use the request samples in `http/*.http` for manual API checks. There is currently no dedicated automated test directory or static asset directory.
+Application code lives in `src/`. `src/app.js` configures Express and middleware, while `src/server.js` starts the server. Feature code is grouped under `src/modules/<feature>/` and follows a route-controller-service-repository split; Zod request schemas use `*.schema.js`. Shared middleware and utility functions belong in `src/common/middlewares/` and `src/common/utils/`, while shared configuration belongs in `src/config/`. Prisma models, migrations, and seed data live in `prisma/`. Use the request samples in `http/*.http` for manual API checks. There is currently no dedicated automated test directory or static asset directory.
 
 ## Build, Test, and Development Commands
 

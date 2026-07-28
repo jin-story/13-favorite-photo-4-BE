@@ -1,8 +1,8 @@
 import { Router } from "express";
 
-import { protect } from "../../middlewares/auth.js";
-import { uploadImage } from "../../middlewares/imageUpload.js";
-import { validate } from "../../middlewares/validate.js";
+import { protect } from "../../common/middlewares/auth.js";
+import { uploadImage } from "../../common/middlewares/imageUpload.js";
+import { validate } from "../../common/middlewares/validate.js";
 import photoCardController from "./photo-card.controller.js";
 import { createPhotoCardBodySchema } from "./photo-card.schema.js";
 
