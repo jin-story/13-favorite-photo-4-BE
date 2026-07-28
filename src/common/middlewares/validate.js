@@ -1,9 +1,11 @@
 // middlewares/validate.js
-const replaceRequestObject = (target, source) => {
-  for (const key of Object.keys(target)) {
-    delete target[key];
-  }
-  Object.assign(target, source);
+const setRequestProperty = (req, key, value) => {
+  Object.defineProperty(req, key, {
+    value,
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
 };
 
 export const validateRequest =
@@ -14,10 +16,10 @@ export const validateRequest =
         req.body = body.parse(req.body);
       }
       if (params) {
-        replaceRequestObject(req.params, params.parse(req.params));
+        setRequestProperty(req, "params", params.parse(req.params));
       }
       if (query) {
-        replaceRequestObject(req.query, query.parse(req.query));
+        setRequestProperty(req, "query", query.parse(req.query));
       }
 
       next();
