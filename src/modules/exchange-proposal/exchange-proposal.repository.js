@@ -73,7 +73,7 @@ async function createExchangeProposal({
       select: exchangeProposalSummarySelect,
     });
 
-    await tx.notification.create({
+    const notification = await tx.notification.create({
       data: {
         userId: sellerId,
         marketPostingId,
@@ -83,7 +83,7 @@ async function createExchangeProposal({
       },
     });
 
-    return exchangeProposal;
+    return { exchangeProposal, notification };
   });
 }
 
@@ -168,7 +168,7 @@ async function rejectExchangeProposal({
   marketPostingId,
 }) {
   return prisma.$transaction(async (tx) => {
-    const result = await tx.exchangeProposal.updateMany({
+    const updatedProposal = await tx.exchangeProposal.updateMany({
       where: {
         id: exchangeProposalId,
         status: "PENDING",
@@ -178,7 +178,7 @@ async function rejectExchangeProposal({
       },
     });
 
-    if (result.count !== 1) {
+    if (updatedProposal.count !== 1) {
       const error = new Error(
         "교환 제안 상태가 변경되었습니다. 다시 시도해 주세요.",
       );
@@ -187,7 +187,7 @@ async function rejectExchangeProposal({
       throw error;
     }
 
-    await tx.notification.create({
+    const notification = await tx.notification.create({
       data: {
         userId: proposerId,
         marketPostingId,
@@ -197,12 +197,13 @@ async function rejectExchangeProposal({
       },
     });
 
-    return tx.exchangeProposal.findUnique({
+    const exchangeProposal = await tx.exchangeProposal.findUnique({
       where: {
         id: exchangeProposalId,
       },
       select: exchangeProposalSummarySelect,
     });
+    return { exchangeProposal, notification };
   });
 }
 
@@ -310,7 +311,7 @@ async function approveExchangeProposal(proposal) {
       },
     });
 
-    await tx.notification.create({
+    const notification = await tx.notification.create({
       data: {
         userId: proposal.proposerId,
         marketPostingId: proposal.marketPostingId,
@@ -320,12 +321,13 @@ async function approveExchangeProposal(proposal) {
       },
     });
 
-    return tx.exchangeProposal.findUnique({
+    const exchangeProposal = await tx.exchangeProposal.findUnique({
       where: {
         id: proposal.id,
       },
       select: exchangeProposalSummarySelect,
     });
+    return { exchangeProposal, notification };
   });
 }
 

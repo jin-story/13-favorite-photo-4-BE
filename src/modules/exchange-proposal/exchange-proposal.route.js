@@ -1,7 +1,10 @@
 import { Router } from "express";
 
-import { protect } from "../../middlewares/auth.js";
-import { validate, validateRequest } from "../../middlewares/validate.js";
+import { protect } from "../../common/middlewares/auth.js";
+import {
+  validate,
+  validateRequest,
+} from "../../common/middlewares/validate.js";
 import exchangeProposalController from "./exchange-proposal.controller.js";
 import {
   exchangeProposalIdParamsSchema,

@@ -4,7 +4,7 @@ import path from "node:path";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 
-import cloudinary from "../config/cloudinary.js";
+import cloudinary from "../../config/cloudinary.js";
 
 const ALLOWED_IMAGE_TYPES = new Map([
   ["image/jpeg", new Set([".jpg", ".jpeg"])],

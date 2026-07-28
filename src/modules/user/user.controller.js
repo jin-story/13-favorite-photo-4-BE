@@ -3,6 +3,10 @@ import {
   markNotificationAsReadParamsSchema,
 } from "./user.schema.js";
 import userService from "./user.service.js";
+import {
+  addSubscriber,
+  removeSubscriber,
+} from "../../common/utils/notificationSubscribers.js";
 
 async function getMe(req, res, next) {
   try {
@@ -58,6 +62,22 @@ async function markNotificationAsRead(req, res) {
   return res.status(200).json(notification);
 }
 
+function subscribeNotifications(req, res) {
+  const userId = req.user.userId;
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+
+  addSubscriber(userId, res);
+
+  res.on("close", () => {
+    removeSubscriber(userId, res);
+  });
+}
+
 export default {
   getMe,
   getMyInventories,
@@ -65,4 +85,5 @@ export default {
   getMyMarketPostings,
   getMyNotifications,
   markNotificationAsRead,
+  subscribeNotifications,
 };

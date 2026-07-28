@@ -1,7 +1,7 @@
 import { Router } from "express";
 import userController from "./user.controller.js";
-import { protect } from "../../middlewares/auth.js";
-import { validateRequest } from "../../middlewares/validate.js";
+import { protect } from "../../common/middlewares/auth.js";
+import { validateRequest } from "../../common/middlewares/validate.js";
 import {
   getMyInventoriesQuerySchema,
   markNotificationAsReadParamsSchema,
@@ -425,6 +425,35 @@ userRouter.patch(
     params: markNotificationAsReadParamsSchema,
   }),
   userController.markNotificationAsRead,
+);
+
+/**
+ * @swagger
+ * /users/me/notifications/subscribe:
+ *   get:
+ *     tags: [User]
+ *     summary: 실시간 알림 구독
+ *     description: |
+ *       Bearer 액세스 토큰으로 인증한 뒤 SSE 연결을 열고 유지합니다.
+ *       각 알림은 `data: {JSON}\n\n` 형식으로 전달됩니다.
+ *       Swagger UI의 Try it out은 장시간 연결을 유지하는 SSE 테스트에 적합하지 않습니다.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: SSE 연결을 열고 유지하며 실시간 알림을 전송합니다.
+ *         content:
+ *           text/event-stream:
+ *             schema:
+ *               type: string
+ *               description: '`data: {JSON}\n\n` 형식의 SSE 알림 스트림'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+userRouter.get(
+  "/me/notifications/subscribe",
+  protect,
+  userController.subscribeNotifications,
 );
 
 export default userRouter;

@@ -1,5 +1,5 @@
 import GoogleStrategy from "passport-google-oauth20";
-import userService from "../modules/user/user.service.js";
+import userService from "../../modules/user/user.service.js";
 
 const googleStrategyOptions = {
   clientID: process.env.GOOGLE_CLIENT_ID,

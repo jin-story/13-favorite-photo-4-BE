@@ -1,14 +1,13 @@
 import express from "express";
 
-import cookieParser from "cookie-parser";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
-import passport from "./middlewares/auth.js";
-import errorHandler from "./middlewares/errorHandler.js";
-import notFound from "./middlewares/notFound.js";
-
+import notFound from "./common/middlewares/notFound.js";
+import errorHandler from "./common/middlewares/errorHandler.js";
+import passport from "./common/middlewares/auth.js";
 import router from "./routes/index.js";
 
 const app = express();

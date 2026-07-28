@@ -1,9 +1,8 @@
 import { Router } from "express";
 
-import cloudinary from "../../config/cloudinary.js";
-import { protect } from "../../middlewares/auth.js";
-import { uploadImage } from "../../middlewares/imageUpload.js";
-import { validate } from "../../middlewares/validate.js";
+import { protect } from "../../common/middlewares/auth.js";
+import { uploadImage } from "../../common/middlewares/imageUpload.js";
+import { validate } from "../../common/middlewares/validate.js";
 import photoCardController from "./photo-card.controller.js";
 import { createPhotoCardBodySchema } from "./photo-card.schema.js";
 
@@ -225,20 +224,5 @@ router.post(
   validate(createPhotoCardBodySchema),
   photoCardController.createPhotoCard,
 );
-
-// validate/DB 실패로 아래 체인이 끊겨도 uploadImage가 이미 올린 Cloudinary 파일은 남으므로 정리한다
-router.use(async (err, req, res, next) => {
-  if (req.file?.filename) {
-    try {
-      await cloudinary.uploader.destroy(req.file.filename, {
-        invalidate: true,
-      });
-    } catch {
-      // best-effort 정리이므로 실패해도 원래 에러 응답은 그대로 진행
-    }
-  }
-
-  next(err);
-});
 
 export default router;

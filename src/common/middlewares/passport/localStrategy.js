@@ -1,5 +1,5 @@
 import { Strategy as LocalStrategy } from "passport-local";
-import userService from "../../modules/user/user.service.js";
+import userService from "../../../modules/user/user.service.js";
 
 const localStrategyOptions = {
   usernameField: "email",
