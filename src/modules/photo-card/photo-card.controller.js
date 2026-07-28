@@ -10,18 +10,9 @@ async function createPhotoCard(req, res, next) {
       throw error;
     }
 
-    if (!process.env.SERVER_URL) {
-      throw new Error("SERVER_URL 환경변수가 설정되지 않았습니다.");
-    }
-
-    const imageUrl = new URL(
-      `/images/${req.file.filename}`,
-      process.env.SERVER_URL,
-    ).toString();
-
     const photoCard = await photoCardService.createPhotoCard(req.user.userId, {
       ...req.body,
-      imageUrl,
+      imageUrl: req.file.path,
     });
 
     res.status(201).json(photoCard);

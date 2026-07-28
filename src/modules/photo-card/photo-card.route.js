@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import cloudinary from "../../config/cloudinary.js";
 import { protect } from "../../common/middlewares/auth.js";
 import { uploadImage } from "../../common/middlewares/imageUpload.js";
 import { validate } from "../../common/middlewares/validate.js";
