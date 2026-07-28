@@ -1,7 +1,4 @@
-import {
-  getMyInventoriesQuerySchema,
-  markNotificationAsReadParamsSchema,
-} from "./user.schema.js";
+import { markNotificationAsReadParamsSchema } from "./user.schema.js";
 import userService from "./user.service.js";
 import {
   addSubscriber,
@@ -17,14 +14,10 @@ async function getMe(req, res, next) {
   }
 }
 
-//express 5
 async function getMyInventories(req, res) {
-  //나중에 통합하면 지우기
-  const filters = getMyInventoriesQuerySchema.parse(req.query);
-
   const inventories = await userService.getMyInventories(
     req.user.userId,
-    filters,
+    req.query,
   );
 
   return res.status(200).json(inventories);
