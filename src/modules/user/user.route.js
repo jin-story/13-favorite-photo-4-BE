@@ -271,10 +271,13 @@ userRouter.get(
  *               type: array
  *               items:
  *                 type: object
- *                 required: [id, message, status, createdAt, offeredInventory]
+ *                 required: [id, marketPostingId, message, status, createdAt, offeredInventory]
  *                 properties:
  *                   id:
  *                     type: integer
+ *                   marketPostingId:
+ *                     type: integer
+ *                     description: 교환을 요청한 판매글 ID
  *                   message:
  *                     type: [string, "null"]
  *                   status:
