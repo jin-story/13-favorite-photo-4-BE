@@ -1,17 +1,39 @@
 import express from "express";
-import dotenv from "dotenv";
 
-dotenv.config();
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./config/swagger.js";
+import notFound from "./common/middlewares/notFound.js";
+import errorHandler from "./common/middlewares/errorHandler.js";
+import passport from "./common/middlewares/auth.js";
+import router from "./routes/index.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+app.use(morgan("dev"));
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
+app.use(cookieParser());
+app.use(passport.initialize());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req, res) => {
-  res.json({ message: "Todo API Server" });
+  res.json({ message: "Favorite Photo API Server" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.use("/", router);
+// 맨 아래
+app.use(notFound);
+app.use(errorHandler);
+
+export default app;

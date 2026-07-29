@@ -1,0 +1,225 @@
+import { sendNotification } from "../../common/utils/notificationSubscribers.js";
+
+import * as marketPostingRepository from "./market-posting.repository.js";
+import { createHttpError } from "./market-posting.error.js";
+
+function toPhotoCardResponse(photoCard) {
+  if (!photoCard) return undefined;
+
+  return {
+    id: photoCard.id,
+    creatorId: photoCard.creatorId,
+    creator: photoCard.creator,
+    name: photoCard.name,
+    grade: photoCard.grade,
+    genre: photoCard.genre,
+    minPrice: photoCard.minPrice,
+    description: photoCard.description,
+    imageUrl: photoCard.imageUrl,
+    totalQuantity: photoCard.totalQuantity,
+    createdAt: photoCard.createdAt,
+    updatedAt: photoCard.updatedAt,
+  };
+}
+
+function toMarketPostingResponse(posting) {
+  return {
+    id: posting.id,
+    sellerId: posting.sellerId,
+    seller: posting.seller,
+    userInventoryId: posting.userInventoryId,
+    photoCard: toPhotoCardResponse(posting.userInventory?.photoCard),
+    price: posting.price,
+    quantity: posting.quantity,
+    remainingQuantity: posting.remainingQuantity,
+    title: posting.title,
+    description: posting.description,
+    exchangeGrade: posting.exchangeGrade,
+    exchangeGenre: posting.exchangeGenre,
+    exchangeDescription: posting.exchangeDescription,
+    status: posting.status,
+    createdAt: posting.createdAt,
+    updatedAt: posting.updatedAt,
+  };
+}
+
+function toMarketPostingDetailResponse(posting, userId) {
+  return {
+    ...toMarketPostingResponse(posting),
+    isSeller: posting.sellerId === userId,
+  };
+}
+
+function buildMarketPostingWhere(query) {
+  const photoCardWhere = {
+    ...(query.grade ? { grade: query.grade } : {}),
+    ...(query.genre ? { genre: query.genre } : {}),
+  };
+
+  return {
+    deletedAt: null,
+    ...(query.soldOut !== undefined
+      ? { remainingQuantity: query.soldOut ? 0 : { gt: 0 } }
+      : {}),
+    ...(query.keyword
+      ? {
+          OR: [
+            { title: { contains: query.keyword, mode: "insensitive" } },
+            { description: { contains: query.keyword, mode: "insensitive" } },
+            {
+              userInventory: {
+                photoCard: {
+                  name: { contains: query.keyword, mode: "insensitive" },
+                },
+              },
+            },
+          ],
+        }
+      : {}),
+    ...(Object.keys(photoCardWhere).length > 0
+      ? {
+          userInventory: {
+            photoCard: {
+              ...photoCardWhere,
+            },
+          },
+        }
+      : {}),
+  };
+}
+
+function buildOrderBy(sort) {
+  if (sort === "oldest") return [{ createdAt: "asc" }, { id: "asc" }];
+  if (sort === "price_asc") return [{ price: "asc" }, { id: "asc" }];
+  if (sort === "price_desc") return [{ price: "desc" }, { id: "desc" }];
+  return [{ createdAt: "desc" }, { id: "desc" }];
+}
+
+function encodeCursor(posting, sort) {
+  const field = sort.startsWith("price") ? "price" : "createdAt";
+  const value =
+    field === "createdAt" ? posting.createdAt.toISOString() : posting.price;
+
+  return Buffer.from(JSON.stringify({ sort, value, id: posting.id })).toString(
+    "base64url",
+  );
+}
+
+function decodeCursor(cursor, sort) {
+  if (!cursor) return undefined;
+
+  try {
+    const decoded = JSON.parse(
+      Buffer.from(cursor, "base64url").toString("utf8"),
+    );
+    const isPriceSort = sort.startsWith("price");
+    const value = isPriceSort ? decoded.value : new Date(decoded.value);
+    const hasValidValue = isPriceSort
+      ? Number.isInteger(value) && value >= 0
+      : !Number.isNaN(value.getTime());
+
+    if (
+      decoded.sort !== sort ||
+      !Number.isInteger(decoded.id) ||
+      decoded.id < 1 ||
+      !hasValidValue
+    ) {
+      throw new Error("Invalid cursor");
+    }
+
+    return { value, id: decoded.id };
+  } catch {
+    throw createHttpError("유효하지 않은 커서입니다.", 400, "INVALID_CURSOR");
+  }
+}
+
+async function getExistingMarketPosting(marketPostingId) {
+  const posting =
+    await marketPostingRepository.findMarketPostingById(marketPostingId);
+
+  if (!posting) {
+    throw createHttpError(
+      "판매글을 찾을 수 없습니다.",
+      404,
+      "MARKET_POSTING_NOT_FOUND",
+    );
+  }
+
+  return posting;
+}
+
+export async function createMarketPosting(sellerId, payload) {
+  const posting = await marketPostingRepository.createMarketPosting({
+    sellerId,
+    data: payload,
+  });
+
+  return toMarketPostingResponse(posting);
+}
+
+export async function listMarketPostings(query) {
+  const limit = query.limit;
+  const cursor = decodeCursor(query.cursor, query.sort);
+  const result = await marketPostingRepository.listMarketPostings({
+    where: buildMarketPostingWhere(query),
+    orderBy: buildOrderBy(query.sort),
+    cursor,
+    sort: query.sort,
+    limit,
+  });
+
+  const hasNextPage = result.length > limit;
+  const pageItems = hasNextPage ? result.slice(0, limit) : result;
+
+  return {
+    list: pageItems.map(toMarketPostingResponse),
+    nextCursor: hasNextPage
+      ? encodeCursor(pageItems[pageItems.length - 1], query.sort)
+      : null,
+    hasNextPage,
+  };
+}
+
+export async function getMarketPosting(userId, marketPostingId) {
+  const posting = await getExistingMarketPosting(marketPostingId);
+  return toMarketPostingDetailResponse(posting, userId);
+}
+
+export async function updateMarketPosting(sellerId, marketPostingId, payload) {
+  const posting = await marketPostingRepository.updateMarketPosting({
+    id: marketPostingId,
+    sellerId,
+    data: payload,
+  });
+
+  return toMarketPostingResponse(posting);
+}
+
+export async function cancelMarketPosting(sellerId, marketPostingId) {
+  await marketPostingRepository.cancelMarketPosting({
+    id: marketPostingId,
+    sellerId,
+  });
+}
+
+export async function purchaseMarketPosting(
+  buyerId,
+  marketPostingId,
+  quantity,
+) {
+  const result = await marketPostingRepository.purchaseMarketPosting({
+    buyerId,
+    marketPostingId,
+    quantity,
+  });
+
+  for (const notification of result.notifications) {
+    sendNotification(notification.userId, notification);
+  }
+
+  return {
+    ...result.transaction,
+    totalPrice: result.totalPrice,
+    remainingQuantity: result.remainingQuantity,
+  };
+}

@@ -1,0 +1,75 @@
+@baseUrl = http://localhost:3001
+@accessToken = 여기 accessToken
+
+### 회원가입
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "nickname": "tester",
+  "encryptedPassword": "password123"
+}
+
+### 로그인
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "encryptedPassword": "password123"
+}
+
+### 내 정보 조회
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### 토큰 재발급 (로그인 시 내려온 refreshToken 쿠키가 자동으로 전송됨)
+POST {{baseUrl}}/auth/refresh-token
+Origin: http://localhost:3000
+Cookie:
+
+### 로그아웃
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{accessToken}}
+
+
+### 로그인 seed user
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user1@example.com",
+  "encryptedPassword": "password1"
+}
+
+
+### 로그인 seed user2
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user2@example.com",
+  "encryptedPassword": "password2"
+}
+
+
+### 프론트에서 회원가입 진행한 로그인
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "lucy@lucy.com",
+  "encryptedPassword": "12341234"
+}
+
+
+### 구글 로그인 (REST Client로 실행 불가)
+# 브라우저 주소창에 아래 URL을 직접 입력해서 테스트
+#google 
+# http://localhost:3001/auth/google
+#테스트 시 env 파일에 GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL
+#필요함 팀원: "송현규" 에게 요청하기!
+# 구글 로그인 완료하면 자동으로 /auth/google/callback으로 리다이렉트되고
+#테이블에 추가됨
+# { "user": ..., "accessToken": ... } 응답 + refreshToken 쿠키가 내려옴
