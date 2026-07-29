@@ -48,21 +48,23 @@ async function login(req, res, next) {
 
 async function googleCallback(req, res, next) {
   try {
-    const { user, accessToken, refreshToken } = await authService.oauthLogin(
+    const { accessToken, refreshToken } = await authService.oauthLogin(
       req.user,
     );
 
     res.cookie("refreshToken", refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
-    res.json({ user, accessToken });
+
+    return res.redirect(
+      `${process.env.CLIENT_URL}/oauth/callback#accessToken=${encodeURIComponent(accessToken)}`,
+    );
   } catch (error) {
     next(error);
   }
 }
-
 async function getMe(req, res, next) {
   try {
     const user = await userService.getMe(req.user.userId);
-    res.json(user);
+    return res.json(user);
   } catch (error) {
     next(error);
   }
@@ -75,7 +77,7 @@ async function refreshToken(req, res, next) {
       await authService.refresh(currentRefreshToken);
 
     res.cookie("refreshToken", newRefreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
-    res.json({ accessToken });
+    return res.json({ accessToken });
   } catch (error) {
     next(error);
   }
@@ -85,7 +87,7 @@ async function logout(req, res, next) {
   try {
     await authService.logout(req.user.userId);
     res.clearCookie("refreshToken", { path: "/" });
-    res.status(204).end();
+    return res.status(204).end();
   } catch (error) {
     next(error);
   }
