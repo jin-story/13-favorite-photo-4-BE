@@ -138,6 +138,7 @@ async function findExchangeProposalsByProposerId(userId) {
     },
     select: {
       id: true,
+      marketPostingId: true,
       message: true,
       status: true,
       createdAt: true,
