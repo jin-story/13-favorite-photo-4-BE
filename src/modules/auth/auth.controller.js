@@ -9,7 +9,7 @@ const REFRESH_TOKEN_COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: isProduction ? "none" : "lax",
   secure: isProduction,
-  path: "/auth/refresh-token",
+  path: "/",
   maxAge: REFRESH_TOKEN_MAX_AGE,
 };
 
@@ -84,7 +84,7 @@ async function refreshToken(req, res, next) {
 async function logout(req, res, next) {
   try {
     await authService.logout(req.user.userId);
-    res.clearCookie("refreshToken", { path: "/auth/refresh-token" });
+    res.clearCookie("refreshToken", { path: "/" });
     res.status(204).end();
   } catch (error) {
     next(error);
