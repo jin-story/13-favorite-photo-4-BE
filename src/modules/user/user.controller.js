@@ -66,7 +66,7 @@ function subscribeNotifications(req, res) {
 
   addSubscriber(userId, res);
 
-  res.on("close", () => {
+  req.on("close", () => {
     removeSubscriber(userId, res);
   });
 }
