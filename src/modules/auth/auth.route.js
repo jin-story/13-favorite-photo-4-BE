@@ -324,19 +324,25 @@ authRouter.get(
  *         schema:
  *           type: string
  *     responses:
- *       '200':
- *         description: 로그인 성공
+ *       '302':
+ *         description: 인증 성공 시 액세스 토큰을 쿼리 매개변수로 포함한 클라이언트 콜백 URL로 리다이렉트하고, 인증 실패 시 루트 경로로 리다이렉트
  *         headers:
  *           Set-Cookie:
- *             description: HttpOnly refreshToken 쿠키
+ *             description: 인증 성공 시 발급되는 HttpOnly refreshToken 쿠키
  *             schema:
  *               type: string
+ *           Location:
+ *             description: 성공 시 `${CLIENT_URL}/api/auth/callback?token={accessToken}`, 실패 시 `/`
+ *             schema:
+ *               type: string
+ *       '409':
+ *         $ref: '#/components/responses/Conflict'
+ *       '500':
+ *         description: 구글 인증 또는 토큰 발급 처리 중 서버 오류가 발생했습니다.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AuthResponse'
- *       '302':
- *         description: 구글 인증 실패 시 루트 경로로 리다이렉트
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 authRouter.get(
   "/google/callback",

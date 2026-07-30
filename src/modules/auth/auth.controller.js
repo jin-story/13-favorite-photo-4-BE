@@ -55,7 +55,7 @@ async function googleCallback(req, res, next) {
     res.cookie("refreshToken", refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
 
     return res.redirect(
-      `${process.env.CLIENT_URL}/oauth/callback#accessToken=${encodeURIComponent(accessToken)}`,
+      `${process.env.CLIENT_URL}/api/auth/callback?token=${accessToken}`,
     );
   } catch (error) {
     next(error);

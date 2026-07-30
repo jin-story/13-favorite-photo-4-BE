@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 import userRepository from "./user.repository.js";
 
@@ -237,8 +237,6 @@ async function markNotificationAsRead(userId, notificationId) {
   return userRepository.updateNotificationAsRead(notificationId);
 }
 
-const MAX_NICKNAME_RETRIES = 3;
-
 async function oauthCreateOrUpdate(provider, providerId, email, name) {
   const isExistUser = await userRepository.findByEmail(email);
 
@@ -251,34 +249,14 @@ async function oauthCreateOrUpdate(provider, providerId, email, name) {
     return filterSensitiveUserData(updatedUser);
   }
 
-  let nickname = name;
+  const createdUser = await userRepository.save({
+    email,
+    nickname: name,
+    provider,
+    providerId,
+  });
 
-  for (let attempt = 0; attempt < MAX_NICKNAME_RETRIES; attempt += 1) {
-    try {
-      const createdUser = await userRepository.save({
-        email,
-        nickname,
-        provider,
-        providerId,
-      });
-
-      return filterSensitiveUserData(createdUser);
-    } catch (error) {
-      const isNicknameConflict =
-        error.code === "P2002" && error.meta?.target?.includes("nickname");
-
-      if (!isNicknameConflict) {
-        throw error;
-      }
-
-      nickname = `${name}-${randomUUID().slice(0, 4)}`;
-    }
-  }
-
-  const error = new Error("사용 가능한 닉네임 생성에 실패했습니다.");
-  error.status = 409;
-  error.code = "NICKNAME_CONFLICT";
-  throw error;
+  return filterSensitiveUserData(createdUser);
 }
 
 export default {
